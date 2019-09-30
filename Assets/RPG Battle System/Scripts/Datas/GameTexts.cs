@@ -23,27 +23,27 @@ public class GameTexts
     /// <summary>
     /// The player turn
     /// </summary>
-    public const string PlayerTurn = "It's player turn";
+    public const string PlayerTurn = "こちらのターン!!";
     /// <summary>
     /// The enemy turn
     /// </summary>
-    public const string EnemyTurn = "It's enemy turn";
+    public const string EnemyTurn = "敵のターン!!";
     /// <summary>
     /// The enemy won
     /// </summary>
-    public const string EnemyWon = "Enemy won";
+    public const string EnemyWon = "全滅してしまった…";
     /// <summary>
     /// The player won
     /// </summary>
-    public const string PlayerWon = "Player won";
+    public const string PlayerWon = "バトルに勝利した!!";
     /// <summary>
     /// The end of the battle
     /// </summary>
-    public const string EndOfTheBattle = "End of the battle";
+    public const string EndOfTheBattle = "魔物の群れに勝利した!!";
     /// <summary>
     /// The player xp
     /// </summary>
-    public const string PlayerXP = "- All survived players get XP:";
+    public const string PlayerXP = "経験値を獲得!!";
     /// <summary>
     /// You lost
     /// </summary>

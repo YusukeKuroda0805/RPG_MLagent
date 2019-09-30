@@ -59,7 +59,7 @@ public class Datas
 		{
 
 		var character = new CharactersData();
-		character.Name = "Sam";
+		character.Name = "Sam";//Sam
 		character.Type = EnumCharacterType.Warrior;
 		character.Level = 1;
 		character.PicturesName  = "Sam";
@@ -71,7 +71,7 @@ public class Datas
 		CharactersData[1]=character;
 
 		character = new CharactersData();
-		character.Name = "Lilia";
+		character.Name = "Lilia";//Lilia
 		character.Type = EnumCharacterType.Wizard;
 		character.Level = 1;
 		character.PicturesName  = "Lilia";
@@ -106,7 +106,7 @@ public class Datas
 
 		//Weapons
 		var item = new ItemsData();
-		item.Name = "sword";
+		item.Name = "こうげき";
 		item.Description = "A noob sword";
 		item.PicturesName = "W_Sword001";
 		item.EquipementType = EnumEquipmentType.RightHand;
@@ -193,7 +193,7 @@ public class Datas
 
 
 		item = new ItemsData();
-		item.Name = "Wand";
+		item.Name = "こうげき";
 		item.Description = "A noob wand";
 		item.PicturesName = "W_Mace010";
 		item.EquipementType = EnumEquipmentType.TwoHands;
@@ -417,7 +417,7 @@ public class Datas
 
 		//Potions
 		item = new ItemsData();
-		item.Name = "Small potion";
+		item.Name = "やくそう";
 		item.Description = "A potion that add 20 Hp points";
 		item.PicturesName = "P_Red04";
 		item.EquipementType = EnumEquipmentType.Usable;
@@ -426,7 +426,7 @@ public class Datas
 		ItemsData[29]= item;
 
 		item = new ItemsData();
-		item.Name = "Potion";
+		item.Name = "上やくそう";
 		item.Description = "A potion that add 40 Hp points";
 		item.PicturesName = "P_Red03";
 		item.EquipementType = EnumEquipmentType.Usable;
@@ -435,7 +435,7 @@ public class Datas
 		ItemsData[30]= item;
 
 		item = new ItemsData();
-		item.Name = "Big potion";
+        item.Name = "特やくそう";
 		item.Description = "A big potion that add 60 Hp points";
 		item.PicturesName = "P_Red03";
 		item.EquipementType = EnumEquipmentType.Usable;
@@ -480,7 +480,7 @@ public class Datas
 	{
 
 		var spell = new SpellsData();
-		spell.Name = "Fire ball";
+		spell.Name = "ファイヤ";
 		spell.Description = "Send a fireball on your ennemies";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Fire03";
@@ -491,7 +491,7 @@ public class Datas
         SpellsData[1]= spell;
 
 		spell = new SpellsData();
-		spell.Name = "Ice ball";
+		spell.Name = "アイス";
 		spell.Description = "Send an ice ball on your ennemies";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Ice06";
@@ -502,7 +502,7 @@ public class Datas
         SpellsData[2]= spell;
 
 		spell = new SpellsData();
-		spell.Name = "Shadow ball";
+		spell.Name = "ダーク";
 		spell.Description = "Send a shadow ball on your ennemies";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Shadow01";
@@ -513,7 +513,7 @@ public class Datas
         SpellsData[3]= spell;
 
 		spell = new SpellsData();
-		spell.Name = "Earth quak";
+		spell.Name = "じしん";
 		spell.Description = "Shake the ground";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Earth01";
@@ -525,7 +525,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Fire wall";
+		spell.Name = "炎の壁";
 		spell.Description = "Invok a firewall";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Fire02";
@@ -537,7 +537,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Ice mirror";
+		spell.Name = "氷の鏡";
 		spell.Description = "Freeze your ennemies inside";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Ice07";
@@ -549,7 +549,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Death shadow";
+		spell.Name = "デス";
 		spell.Description = "Open the gate for dead souls";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Shadow06";
@@ -562,7 +562,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Thunder storm";
+		spell.Name = "サンダー";
 		spell.Description = "A big thunder storm";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Thunder07";
@@ -576,7 +576,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Fire sword";
+		spell.Name = "火炎斬り";
 		spell.Description = "A fire attack with sword";
 		spell.AllowedCharacterType = EnumCharacterType.Warrior;
 		spell.PicturesName  = "S_Sword01";
@@ -588,7 +588,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Ice sword";
+		spell.Name = "氷結斬り";
 		spell.Description = "An ice sword attack";
 		spell.AllowedCharacterType = EnumCharacterType.Warrior;
 		spell.PicturesName  = "S_Sword02";
@@ -600,7 +600,7 @@ public class Datas
 
 
 		spell = new SpellsData();
-		spell.Name = "Deadly sword";
+		spell.Name = "死の剣";
 		spell.Description = "A deadly attack";
 		spell.AllowedCharacterType = EnumCharacterType.Warrior;
 		spell.PicturesName  = "S_Sword07";
