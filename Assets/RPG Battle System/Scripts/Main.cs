@@ -53,11 +53,11 @@ public class Main : MonoBehaviour,ISerializable
     /// <summary>
     /// The previous scene
     /// </summary>
-    public static string PreviousScene = string.Empty;
+    public static string PreviousScene = string.Empty;//precious 以前
     /// <summary>
     /// The current scene
     /// </summary>
-    public static  string  CurrentScene  =string.Empty;
+    public static  string  CurrentScene  =string.Empty;//current 現在
     //Cannot serialize Vector3 due to unity limits
     /// <summary>
     /// The player position
@@ -110,14 +110,14 @@ public class Main : MonoBehaviour,ISerializable
     /// </summary>
     void Awake()
 	{
-			//Affect the variable firstSceneLoaded to be accesed from any part of the game 
-		FirstSceneLoaded = this.FirstSceneToLoad;
-		
-		// First we check if there are any other instances conflicting
-		if(CharacterList != null || EquipmentList != null || ItemList != null  )
+        //ゲームの任意の部分からアクセスされる変数firstSceneLoadedに影響します
+        FirstSceneLoaded = this.FirstSceneToLoad;
+
+        // まず、競合する他のインスタンスがあるかどうかを確認します
+        if (CharacterList != null || EquipmentList != null || ItemList != null  )
 		{
-			// If that is the case, we destroy other instances
-			Destroy(gameObject);
+            // その場合、他のインスタンスを破棄します
+            Destroy(gameObject);
 		}
 
 
@@ -133,26 +133,28 @@ public class Main : MonoBehaviour,ISerializable
 
 
 
-		// Here we save our singleton instance
-		CharacterList = new   List<CharactersData>()  ;
+        // ここで、シングルトンインスタンスを保存します
+        CharacterList = new   List<CharactersData>()  ;
 		EquipmentList = new List<ItemsData> ();
 		ItemList = new List<ItemsData> ();
 	
-		//Initialize games datas
-		Datas.PopulateDatas (); 
+		//ゲームデータを初期化する
+		Datas.PopulateDatas ();
 
-		//initialize data for a new game
-		InitializeDatas ();
+        //新しいゲームのデータを初期化します
+        InitializeDatas();
 
-		// Furthermore we make sure that we don't destroy between scenes (this is optional)
-		DontDestroyOnLoad(gameObject);
+        //さらに、シーン間で破壊しないようにします（これはオプションです）
+        DontDestroyOnLoad(gameObject);
 
+        //指定した最初のシーンを表示する
        SceneManager.LoadScene(FirstSceneLoaded); 
 	}
 
     /// <summary>
     /// Initializes the player position.
     /// </summary>
+    //プレイヤーの座標の位置を初期化
     public static void InitializePlayerPosition()
 	{
 		PlayerPosition  =default(Vector3);
@@ -167,25 +169,27 @@ public class Main : MonoBehaviour,ISerializable
     public void InitializeDatas()
 	{
         
-		CharacterList.Add (Datas.CharactersData [1]);
-		CharacterList.Add (Datas.CharactersData [2]);
+		CharacterList.Add (Datas.CharactersData [1]);//sam(主人公)
+		CharacterList.Add (Datas.CharactersData [2]);//lilia(仲間)
 
-		CharacterList [0].Head =Datas.ItemsData [12] ;
+        //↓主人公の装備
+		CharacterList [0].Head =Datas.ItemsData [12] ;//helmet
         EquipmentList.Add(Datas.ItemsData[12]);
-		CharacterList [0].Body =Datas.ItemsData [22] ;
+		CharacterList [0].Body =Datas.ItemsData [22] ;//Armor
         EquipmentList.Add(Datas.ItemsData[22]);
-        CharacterList [0].RightHand =Datas.ItemsData [1] ;
+        CharacterList [0].RightHand =Datas.ItemsData [1] ;//こうげき（剣）
         EquipmentList.Add(Datas.ItemsData[1]);
-        CharacterList [0].LeftHand =Datas.ItemsData [17] ;
+        CharacterList [0].LeftHand =Datas.ItemsData [17] ;//shield
         EquipmentList.Add(Datas.ItemsData[17]);
+        //AddRange コレクションを追加
         CharacterList [0].SpellsList.AddRange(Datas.SpellsData.Where(w=>w.Value.AllowedCharacterType== EnumCharacterType.Warrior).Select(s=>s.Value));
 
-
-		CharacterList [1].Head =Datas.ItemsData [15] ;
+        //↓仲間の装備
+		CharacterList [1].Head =Datas.ItemsData [15] ;//hat
         EquipmentList.Add(Datas.ItemsData[15]);
-        CharacterList [1].Body =Datas.ItemsData [26] ;
+        CharacterList [1].Body =Datas.ItemsData [26] ;//Clothes
         EquipmentList.Add(Datas.ItemsData[26]);
-        CharacterList [1].RightHand =Datas.ItemsData [9] ;
+        CharacterList [1].RightHand =Datas.ItemsData [9] ;//こうげき（杖）
         EquipmentList.Add(Datas.ItemsData[9]);
         CharacterList [1].SpellsList.AddRange(Datas.SpellsData.Where(w=>w.Value.AllowedCharacterType== EnumCharacterType.Wizard).Select(s=>s.Value));
 
@@ -194,9 +198,10 @@ public class Main : MonoBehaviour,ISerializable
             item.IsEquiped = true;
         }
 
-        ItemList.Add(Datas.ItemsData[29]);
-        ItemList.Add(Datas.ItemsData[30]);
-        ItemList.Add(Datas.ItemsData[31]);
+        //アイテムリスト
+        ItemList.Add(Datas.ItemsData[29]);//やくそう
+        ItemList.Add(Datas.ItemsData[30]);//上やくそう
+        ItemList.Add(Datas.ItemsData[31]);//特やくそう
         
 				
 	}

@@ -100,6 +100,7 @@ public class Datas
     /// <summary>
     /// Populates the items datas.
     /// </summary>
+    //ゲームデータを初期化する
     public static void PopulateItemsDatas ()
 	{
 

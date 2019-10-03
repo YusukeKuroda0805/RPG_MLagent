@@ -105,7 +105,7 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// The turn by turn sequence list
     /// </summary>
-    private List<Tuple<EnumPlayerOrEnemy, GameObject>> turnByTurnSequenceList = new List<Tuple<EnumPlayerOrEnemy, GameObject>>();
+    private List<Tuple<EnumPlayerOrEnemy, GameObject>> turnByTurnSequenceList = new List<Tuple<EnumPlayerOrEnemy, GameObject>>(); //tuple 2つの要素を一度に返せる
     /// <summary>
     /// The sequence enumerator
     /// </summary>
@@ -141,7 +141,7 @@ public class BattleController : MonoBehaviour
     void Awake()
 	{
 		
-		  
+		//キャラ、バトルUI等を呼び出す
         CharacterState = EnumCharacterState.Idle;
 		CharacterSide = EnumSide.Down;
 		instantiatedSelector = GameObject.Instantiate(Selector);
@@ -152,10 +152,13 @@ public class BattleController : MonoBehaviour
 		foreach (Canvas canva in canvas) {
 			canva.worldCamera= Camera.main;
 		}
+        //敵を生成
 		GenerateEnnemies();
+        //プレイヤーの位置を決める
 		PositionPlayers();
-		GenerateTurnByTurnSequence();
-		sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();
+        //
+		GenerateTurnByTurnSequence();//ターンごとのシーケンスを生成
+        sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();
 		NextBattleSequence();
 		uiGameObject  = GameObject.FindGameObjectsWithTag(Settings.UI).FirstOrDefault();
 		HideDecision();
@@ -305,7 +308,7 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Generates the ennemies.
     /// </summary>
-    void GenerateEnnemies()
+    void GenerateEnnemies() //敵を生成する
 	{
 		int y = EnnemyYPosition;
 		int calculatedPosition = y;
@@ -363,22 +366,29 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Generates the turn by turn sequence.
     /// </summary>
-    void GenerateTurnByTurnSequence()
-	{
+    void GenerateTurnByTurnSequence()//ターンごとのシーケンスを生成
+    {
 		var x = 0;
 		var y = 0;
 		var z = 0;
 		var indexInRange = true;
 		while (indexInRange)
 		{
-			if (instantiatedCharacterList.Count - 1 < y && generatedEnemyList.Count - 1 < z) { indexInRange = false;
+			if (instantiatedCharacterList.Count - 1 < y && generatedEnemyList.Count - 1 < z)
+            {
+                indexInRange = false;
                 break;
             }
 
-            if (x % 2 == 0 && instantiatedCharacterList.Count - 1 >= y) { turnByTurnSequenceList.Add(new Tuple<EnumPlayerOrEnemy, GameObject>(EnumPlayerOrEnemy.Player, instantiatedCharacterList[y]));
+            if (x % 2 == 0 && instantiatedCharacterList.Count - 1 >= y)
+            {
+                turnByTurnSequenceList.Add(new Tuple<EnumPlayerOrEnemy, GameObject>(EnumPlayerOrEnemy.Player, instantiatedCharacterList[y]));
                 y++;
             }
-            else if (x % 2 != 0 && generatedEnemyList.Count - 1 >= z) { turnByTurnSequenceList.Add(new Tuple<EnumPlayerOrEnemy, GameObject>(EnumPlayerOrEnemy.Enemy, generatedEnemyList[z]));
+
+            else if (x % 2 != 0 && generatedEnemyList.Count - 1 >= z)
+            {
+                turnByTurnSequenceList.Add(new Tuple<EnumPlayerOrEnemy, GameObject>(EnumPlayerOrEnemy.Enemy, generatedEnemyList[z]));
                 z++;
             }
 
@@ -391,8 +401,8 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Nexts the battle sequence.
     /// </summary>
-    public void NextBattleSequence()
-	{
+    public void NextBattleSequence()//次のバトルシーケンス
+    {
 		var x =turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Enemy).Count ();
 		var y = turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Player).Count ();
 		if(x<=0) {currentState=EnumBattleState.PlayerWon;
