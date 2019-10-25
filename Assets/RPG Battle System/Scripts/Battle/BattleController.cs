@@ -160,7 +160,7 @@ public class BattleController : MonoBehaviour
 		GenerateTurnByTurnSequence();//ターンごとのシーケンスを生成
         sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();// GetEnumerator コレクション内全ての要素を一回ずつ呼び出す
         NextBattleSequence();
-		uiGameObject  = GameObject.FindGameObjectsWithTag(Settings.UI).FirstOrDefault();
+		uiGameObject  = GameObject.FindGameObjectsWithTag(Settings.UI).FirstOrDefault();//FitstOrDefault シーケンスの最初を返す
 		HideDecision();
 	
 
@@ -226,18 +226,21 @@ public class BattleController : MonoBehaviour
                 break;
 
             // プレイヤーの攻撃フェーズ
+           　　 // プレイヤのターン
             case EnumBattleState.PlayerTurn:
                 Log(GameTexts.PlayerTurn);
                 HideTargetSelector();
-                ShowMenu();
+                ShowMenu();//メニューを表示する
                 currentState = EnumBattleState.None;
                 break;
 
+                //勝利したとき
             case EnumBattleState.PlayerWon:
                 Log(GameTexts.PlayerWon);
                 HideTargetSelector();
                 HideMenu();
                 int totalXP = 0;
+                //経験値の処理
                 foreach (var x in generatedEnemyList)
                 {
                     totalXP += x.GetComponent<EnemyCharacterDatas>().XP;
@@ -595,8 +598,10 @@ public class BattleController : MonoBehaviour
     /// </summary>
     public void ShowMenu()
 	{	if (uiGameObject) {
-			uiGameObject.BroadcastMessage("ShowActionMenu");	
-			uiGameObject.BroadcastMessage ("Start");
+			uiGameObject.BroadcastMessage("ShowActionMenu");//BroadcastMessage ゲームオブジェクトまたは子オブジェクトにあるすべての 
+                                                            //MonoBehaviour を継承したクラスにある methodName 名のメソッドを呼び出します。
+                                                            //ShowActionMenuはBattlePanels.csのメソッド
+            uiGameObject.BroadcastMessage ("Start");
 		}
 	
 
