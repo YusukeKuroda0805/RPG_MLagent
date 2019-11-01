@@ -284,7 +284,7 @@ public class BattlePanels : MonoBehaviour {
     /// <summary>
     /// Shows the action menu.
     /// </summary>
-    public void ShowActionMenu()
+    public void ShowActionMenu()// アクションメニューを表示する
 	{
 		ActionMenu.SetActive (true);
 	}

@@ -106,10 +106,11 @@ public class BattleController : MonoBehaviour
     /// The turn by turn sequence list
     /// </summary>
     private List<Tuple<EnumPlayerOrEnemy, GameObject>> turnByTurnSequenceList = new List<Tuple<EnumPlayerOrEnemy, GameObject>>(); //tuple 2つの要素を一度に返せる
+    　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　//つまりこの場合：turnByTurnSequenceList=<敵か味方か、実際の見た目>
     /// <summary>
     /// The sequence enumerator
     /// </summary>
-    List<Tuple<EnumPlayerOrEnemy, GameObject>>.Enumerator sequenceEnumerator;
+    List<Tuple<EnumPlayerOrEnemy, GameObject>>.Enumerator sequenceEnumerator;// List<T>の要素を列挙する
 
     /// <summary>
     /// The instantiated selector
@@ -218,8 +219,9 @@ public class BattleController : MonoBehaviour
                 var z = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player);
                 // ElementAt 指定したインデックスのデータを返す
                 var playerTargetedByEnemy = z.ElementAt(UnityEngine.Random.Range(0, z.Count() - 1));
+                // 攻撃するターゲットを決める
                 var playerTargetedByEnemyDatas = GetCharacterDatas(playerTargetedByEnemy.Second.name);
-
+                // 矢印をターゲットの向きに変更
                 PositionTargetSelector(playerTargetedByEnemy.Second);
                 EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
                 NextBattleSequence();
@@ -306,6 +308,8 @@ public class BattleController : MonoBehaviour
 	{
 
 		return Main.CharacterList.Where (w => w.Name == s.Replace(Settings.CloneName,"" ) ).FirstOrDefault ();
+        // Replace 文字列を置換する。
+        // 空白を埋める処理をしてる？
 
 	}
 
