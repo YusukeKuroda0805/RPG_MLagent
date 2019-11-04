@@ -239,11 +239,14 @@ public class BattleController : MonoBehaviour
             case EnumBattleState.PlayerTurn:
                 Log(GameTexts.PlayerTurn);
                 HideTargetSelector();
+                // 主人公の行動
                 if (count == 0) {
                     count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     ShowMenu();//メニューを表示する
                     currentState = EnumBattleState.None;
                 }
+
+                // 仲間の行動
                 else if (count == 1)
                 {
                     Debug.Log("仲間のターン");
