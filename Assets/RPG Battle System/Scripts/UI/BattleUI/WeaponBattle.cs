@@ -47,7 +47,7 @@ public class WeaponBattle : MonoBehaviour {
     /// <summary>
     /// The weapon
     /// </summary>
-    public Toggle Weapon;
+    public Toggle Weapon; //クリックで選択するコマンドを作成するためのコンポーネント
     /// <summary>
     /// The logic game object
     /// </summary>
@@ -69,8 +69,8 @@ public class WeaponBattle : MonoBehaviour {
     /// <summary>
     /// This procedure display theequiped items
     /// </summary>
-    public void LoadEquipements()
-	{
+    public void LoadEquipements()// この手順では、装備されているアイテムを表示します
+    {
 		if (BattlePanels.SelectedCharacter.RightHand != null) {
 			if (RightHandImage != null)
 				RightHandImage.sprite = Resources.Load <Sprite> (Settings.IconsPaths + BattlePanels.SelectedCharacter.RightHand.PicturesName);
@@ -116,7 +116,7 @@ public class WeaponBattle : MonoBehaviour {
 				BattlePanels.SelectedWeapon = BattlePanels.SelectedCharacter.RightHand;
 				//weaponDescription.text =PanelActionController.selectedCharacter.RightHand.Description;
 				if (logicGameObject) {
-					logicGameObject.BroadcastMessage("WeaponAction");	
+					logicGameObject.BroadcastMessage("WeaponAction");	//BattleCtr.csのメソッドを呼び出す
 				}
 			}
 		}

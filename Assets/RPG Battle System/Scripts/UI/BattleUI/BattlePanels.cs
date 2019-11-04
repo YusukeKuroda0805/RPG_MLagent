@@ -98,7 +98,7 @@ public class BattlePanels : MonoBehaviour {
     void Awake ()
 	{
 		logicGameObject  = GameObject.FindGameObjectsWithTag(Settings.Logic).FirstOrDefault();
-		ToggleFightAction (SelectedToggle);
+		ToggleFightAction (SelectedToggle); // SelectedToggleはinspector上から指定している
 		SelectedCharacter = Main.CharacterList [0];
 	}
 
@@ -181,17 +181,17 @@ public class BattlePanels : MonoBehaviour {
     /// <param name="action">The action that correspond to the panel to display</param>
     /// </summary>
     /// <param name="action">The action.</param>
-    void DisplayPanel(EnumBattleAction action)
-	{
+    void DisplayPanel(EnumBattleAction action) // この手順では、さまざまなパネルを表示または非表示にします
+    {
 		foreach (PanelBattleActionMapper row in ActionPanels)
 		{
 			if(row.Panel != null) {
 
-				if (row.BattleAction == action){
+				if (row.BattleAction == action){ 
 					row.Panel.SetActive(true);
 					row.Panel.SendMessage("Start"); 
 				}
-				else  row.Panel.SetActive(false);
+				else  row.Panel.SetActive(false); // パネルが一致しないときは子供のパネルを非アクティブにする
 			}
 		}
 
@@ -292,7 +292,7 @@ public class BattlePanels : MonoBehaviour {
     /// <summary>
     /// Declines the decision.
     /// </summary>
-    public void DeclineDecision()
+    public void DeclineDecision()// キャンセル
 	{
 		if ( logicGameObject) 
 			logicGameObject.BroadcastMessage ("DeclineDecision");
@@ -303,7 +303,7 @@ public class BattlePanels : MonoBehaviour {
     /// <summary>
     /// Accepts the decision.
     /// </summary>
-    public void AcceptDecision()
+    public void AcceptDecision()// 決定
 	{
 
 		if (logicGameObject ) 

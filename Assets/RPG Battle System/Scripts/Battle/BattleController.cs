@@ -139,6 +139,10 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Awakes this instance.main
     /// </summary>
+    /// 
+
+    private int count = 0;
+
     void Awake()
 	{
 		
@@ -204,6 +208,8 @@ public class BattleController : MonoBehaviour
                                 foundEnemy = true;
                                 selectedEnemy = hit.transform.gameObject;
                                 PositionTargetSelector(selectedEnemy);
+                                //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                AcceptDecision();
                                 break;
                             }
                         }
@@ -224,6 +230,7 @@ public class BattleController : MonoBehaviour
                 // 矢印をターゲットの向きに変更
                 PositionTargetSelector(playerTargetedByEnemy.Second);
                 EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
+                //PositionTargetSelector(playerTargetedByEnemy.Second);
                 NextBattleSequence();
                 break;
 
@@ -232,8 +239,20 @@ public class BattleController : MonoBehaviour
             case EnumBattleState.PlayerTurn:
                 Log(GameTexts.PlayerTurn);
                 HideTargetSelector();
-                ShowMenu();//メニューを表示する
-                currentState = EnumBattleState.None;
+                if (count == 0) {
+                    count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    ShowMenu();//メニューを表示する
+                    currentState = EnumBattleState.None;
+                }
+                else if (count == 1)
+                {
+                    Debug.Log("仲間のターン");
+                    SelectTheFirstEnemy();
+                    PositionTargetSelector(selectedEnemy);
+                    //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    AcceptDecision();
+                    count = 0;
+                }
                 break;
 
                 //勝利したとき
@@ -446,7 +465,7 @@ public class BattleController : MonoBehaviour
     /// </summary>
     public void NextBattleSequence()//次のバトルシーケンス
     {
-		var x =turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Enemy).Count ();
+        var x =turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Enemy).Count ();
 		var y = turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Player).Count ();
 		if(x<=0) {currentState=EnumBattleState.PlayerWon;
             return;
@@ -465,15 +484,17 @@ public class BattleController : MonoBehaviour
 				selectedPlayer = sequenceEnumerator.Current.Second;
 				selectedPlayerDatas =GetCharacterDatas(selectedPlayer.name);
 				BattlePanels.SelectedCharacter = selectedPlayerDatas;
-			
-			} else if (sequenceEnumerator.Current.First == EnumPlayerOrEnemy.Enemy) {
-				currentState = EnumBattleState.EnemyTurn;
+                //selectedPlayer = sequenceEnumerator.Current.Second;
+                //selectedPlayerDatas = GetCharacterDatas(selectedPlayer.name);
+                //PositionSelector(sequenceEnumerator.Current.Second);
 
-			}
+            } else if (sequenceEnumerator.Current.First == EnumPlayerOrEnemy.Enemy) {
+				currentState = EnumBattleState.EnemyTurn;
+                //PositionSelector(sequenceEnumerator.Current.Second);
+            }
 
 		} else {
-
-			sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();
+            sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();
 			NextBattleSequence();
 
 		}
@@ -493,13 +514,14 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Weapons the action.
     /// </summary>
-    public void WeaponAction()
+    public void WeaponAction()//「こうげき」パネルを選択したら呼び出される
+
 	{
 		currentState = EnumBattleState.SelectingTarget;
 		battlAction = EnumBattleAction.Weapon;
 		SelectTheFirstEnemy();
 		HideMenu();
-		ShowDecision();
+		//ShowDecision();
 
 	}
 
@@ -513,7 +535,7 @@ public class BattleController : MonoBehaviour
 		battlAction = EnumBattleAction.Magic;
 		SelectTheFirstEnemy();
 		HideMenu();
-		ShowDecision();
+		//ShowDecision();
 
 	}
 
@@ -632,7 +654,7 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Declines the decision.
     /// </summary>
-    public void DeclineDecision()
+    public void DeclineDecision()　// キャンセル
 	{
         SoundManager.UISound();
         currentState = EnumBattleState.PlayerTurn;
@@ -644,12 +666,12 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Accepts the decision.
     /// </summary>
-    public void AcceptDecision()
+    public void AcceptDecision() // 決定
 	{
         SoundManager.UISound();
-        currentState = EnumBattleState.SelectedTarget;
-		HideTargetSelector();
-		HideDecision();
+        //currentState = EnumBattleState.SelectedTarget;
+		//HideTargetSelector();
+		//HideDecision();
 		PlayerAction();
 	}
 

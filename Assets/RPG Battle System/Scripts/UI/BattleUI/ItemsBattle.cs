@@ -100,6 +100,7 @@ public class ItemsBattle : MonoBehaviour {
 			ItemsUI toggleItem = selectedToggle.GetComponent <ItemsUI> ();
 			var itemDatas=Main.ItemList.Where(w =>w.Name == toggleItem.Name.text).FirstOrDefault();
 			//itemDescription.text =itemDatas.Description;
+            // アイテムを私用したら回復する処理。しかし、現状だと自分しか回復出来ないため、修正が必要!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			BattlePanels.SelectedCharacter.HP += itemDatas.HealthPoint;
 			BattlePanels.SelectedCharacter.MP += itemDatas.Mana;
 			BattlePanels.SelectedItem = itemDatas;
