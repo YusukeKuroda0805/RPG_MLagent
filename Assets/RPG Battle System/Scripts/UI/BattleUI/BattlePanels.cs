@@ -80,6 +80,8 @@ public class BattlePanels : MonoBehaviour {
     /// </summary>
     private GameObject logicGameObject ;
 
+    public GameObject FeedBackMenu;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     /// <summary>
     /// Starts this instance.
     /// </summary>
@@ -289,6 +291,17 @@ public class BattlePanels : MonoBehaviour {
 		ActionMenu.SetActive (true);
 	}
 
+    public void ShowFeedBack()// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        FeedBackMenu.SetActive(true);
+        Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }
+
+    public void HideFeedBack()
+    {
+        FeedBackMenu.SetActive(false);
+    }
+
     /// <summary>
     /// Declines the decision.
     /// </summary>
@@ -311,6 +324,21 @@ public class BattlePanels : MonoBehaviour {
 		
 
 	}
+
+
+    public void Good() //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        if (logicGameObject)
+            logicGameObject.BroadcastMessage("FeedBackGood");
+
+    }
+
+    public void Bad() //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        if (logicGameObject)
+            logicGameObject.BroadcastMessage("FeedBackBad");
+
+    }
 
 
     /// <summary>

@@ -67,6 +67,8 @@ public enum EnumBattleState
       /// <summary>
     /// Hit
     /// </summary>
-    Hit
+    Hit,
+
+    FeedBack //強化学習の成果報酬の評価をするフェイズ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
 }

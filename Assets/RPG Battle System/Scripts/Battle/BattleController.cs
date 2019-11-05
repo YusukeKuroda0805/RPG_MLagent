@@ -174,12 +174,18 @@ public class BattleController : MonoBehaviour
 
 
 
-
+    public float timecount;
     /// <summary>
     /// This is the main loop and where the system detect the presed keys and send them to the controller.
     /// </summary>
     void Update()
     {
+        //timecount += Time.deltaTime;
+        //if (timecount>1)
+        //{
+        //    Debug.Log(currentState);
+        //    count = 0;
+        //}
 
         if (HOTween.GetAllPlayingTweens().Any())
             return;
@@ -241,6 +247,8 @@ public class BattleController : MonoBehaviour
                 HideTargetSelector();
                 // 主人公の行動
                 if (count == 0) {
+                    Debug.Log("主人公のターン");
+                    //Debug.Log(selectedPlayerDatas);
                     count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     ShowMenu();//メニューを表示する
                     currentState = EnumBattleState.None;
@@ -250,11 +258,18 @@ public class BattleController : MonoBehaviour
                 else if (count == 1)
                 {
                     Debug.Log("仲間のターン");
+                    //Debug.Log(selectedPlayerDatas);
                     SelectTheFirstEnemy();
                     PositionTargetSelector(selectedEnemy);
-                    //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     AcceptDecision();
-                    count = 0;
+                    count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    //count = 0;
+                }
+
+                else if(count == 2)
+                {
+                    Debug.Log("主人公の2回目のターン");
+                    currentState = EnumBattleState.FeedBack;
                 }
                 break;
 
@@ -297,6 +312,10 @@ public class BattleController : MonoBehaviour
                 go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
                 if (go) go.GetComponent<AudioSource>().Stop();
                 SoundManager.GameOverMusic();
+                break;
+
+            case EnumBattleState.FeedBack:
+                ShowFeedBackMenu();
                 break;
 
             default:
@@ -636,6 +655,17 @@ public class BattleController : MonoBehaviour
 
 	}
 
+    public void ShowFeedBackMenu()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        if (uiGameObject)
+        {
+            uiGameObject.BroadcastMessage("ShowFeedBack"); //ShowActionMenuはBattlePanels.csのメソッド
+            uiGameObject.BroadcastMessage("Start");
+        }
+
+
+    }
+
     /// <summary>
     /// Hides the decision.
     /// </summary>
@@ -677,6 +707,24 @@ public class BattleController : MonoBehaviour
 		//HideDecision();
 		PlayerAction();
 	}
+
+    public void FeedBackGood()
+    {
+        Debug.Log("Good");
+        //Debug.Log(selectedPlayerDatas);
+        count = 0; ;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        currentState = EnumBattleState.PlayerTurn;
+        uiGameObject.BroadcastMessage("HideFeedBack");
+    }
+
+    public void FeedBackBad()
+    {
+        Debug.Log("Bad");
+        //Debug.Log(selectedPlayerDatas);
+        count = 1; ;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ShowMenu();//メニューを表示する
+        currentState = EnumBattleState.None;
+    }
 
     /// <summary>
     /// Ends the battle.
