@@ -280,7 +280,7 @@ public class BattlePanels : MonoBehaviour {
     /// </summary>
     public void HideActionMenu()
 	{
-		ActionMenu.SetActive (false);
+		ActionMenu.SetActive (false); // 攻撃、魔法、道具から選ぶ　WeaponBattles.cs のToggleSelect○○
 	}
 
     /// <summary>
@@ -294,10 +294,9 @@ public class BattlePanels : MonoBehaviour {
     public void ShowFeedBack()// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
         FeedBackMenu.SetActive(true);
-        Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 
-    public void HideFeedBack()
+    public void HideFeedBack()// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
         FeedBackMenu.SetActive(false);
     }
