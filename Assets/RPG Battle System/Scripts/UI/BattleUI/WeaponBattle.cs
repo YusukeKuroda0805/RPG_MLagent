@@ -96,13 +96,13 @@ public class WeaponBattle : MonoBehaviour {
     }
 
     /// <summary>
-    /// This procedure check the resume toggle control and displays equips canvas
+    /// This procedure check the resume toggle control and displays equips canvas この手順では、レジュームトグルコントロールを確認し、装備キャンバスを表示します
     /// <param name="gameObject">The gameobject that sent the action</param>
     /// </summary>
     /// <param name="toggle">The toggle.</param>
     public void ToggleSelectAction(Toggle toggle)
 	{
-		Contract.Requires<MissingComponentException> (toggle != null);
+		Contract.Requires<MissingComponentException> (toggle != null); //何のためにやってるのか不明ｗ
         SoundManager.UISound();
         if (toggle.isOn) {
 			
@@ -110,7 +110,7 @@ public class WeaponBattle : MonoBehaviour {
 			//equipActionToggle.isOn = true;
 			ColorBlock cb = toggle.colors;
 			cb.normalColor = Color.cyan;
-			cb.highlightedColor = Color.cyan;
+			cb.highlightedColor = Color.cyan;　//カーソルを合わせたときの色
 			toggle.colors = cb;
 			if (BattlePanels.SelectedCharacter.RightHand != null) {
 				BattlePanels.SelectedWeapon = BattlePanels.SelectedCharacter.RightHand;
