@@ -388,7 +388,7 @@ MonoBehaviour:
   - {fileID: 1102979040690014, guid: 868b9b6306c1ce54b97f9e33cf08d42a, type: 3}
   - {fileID: 1516179628910588, guid: fd9d63c39ac7cf84da65b34f01a33289, type: 3}
   - {fileID: 1206273076891836, guid: c9000c17a1f96784cb60d1037f969f33, type: 3}
-  NumberOfEnemyToGenerate: 3
+  NumberOfEnemyToGenerate: 1
   SpaceBetweenCharacters: 8
   SpaceBetweenCharacterAndEnemy: 3
   PlayersXPosition: -17
@@ -400,6 +400,7 @@ MonoBehaviour:
   WeaponParticleEffect: {fileID: 1307993304775662, guid: 339b4af3d8d619746ae7765b96c18045,
     type: 3}
   MagicParticleEffect: {fileID: 105272, guid: d88638cce5be089459aa4ae8b96b74e8, type: 3}
+  timecount: 0
 --- !u!222 &375481703
 CanvasRenderer:
   m_ObjectHideFlags: 0
