@@ -386,13 +386,11 @@ MonoBehaviour:
   PossibleEnnemies:
   - {fileID: 1128124928530548, guid: 5cf29b2085b035c49886163e72db1f04, type: 3}
   - {fileID: 1102979040690014, guid: 868b9b6306c1ce54b97f9e33cf08d42a, type: 3}
-  - {fileID: 1516179628910588, guid: fd9d63c39ac7cf84da65b34f01a33289, type: 3}
-  - {fileID: 1206273076891836, guid: c9000c17a1f96784cb60d1037f969f33, type: 3}
   NumberOfEnemyToGenerate: 1
   SpaceBetweenCharacters: 8
   SpaceBetweenCharacterAndEnemy: 3
   PlayersXPosition: -17
-  EnnemyXPosition: 17
+  EnnemyXPosition: 14
   PlayersYPosition: 12
   EnnemyYPosition: 12
   Selector: {fileID: 186788, guid: b7c4730f85da69c43b7652f758243e4e, type: 3}

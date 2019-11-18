@@ -215,7 +215,9 @@ public class BattleController : MonoBehaviour
                                 selectedEnemy = hit.transform.gameObject;
                                 PositionTargetSelector(selectedEnemy);
                                 //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                Log("プレイヤーの攻撃！！");
                                 AcceptDecision();
+
                                 break;
                             }
                         }
@@ -237,7 +239,7 @@ public class BattleController : MonoBehaviour
                 PositionTargetSelector(playerTargetedByEnemy.Second);
                 EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
                 //PositionTargetSelector(playerTargetedByEnemy.Second);
-                NextBattleSequence();
+                //Invoke("NextBattleSequence", 2.0f);
                 break;
 
             // プレイヤーの攻撃フェーズ
@@ -606,7 +608,7 @@ public class BattleController : MonoBehaviour
     public void PositionTargetSelector(GameObject target)
 	{
 		instantiatedTargetSelector.SetActive(true);
-		instantiatedTargetSelector.transform.position = target.transform.position + new Vector3(-4, 0, 0);
+		instantiatedTargetSelector.transform.position = target.transform.position + new Vector3(-6, -2, 0);
 	}
 
     /// <summary>
@@ -738,7 +740,7 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Players the action.
     /// </summary>
-    public void PlayerAction()
+    public void PlayerAction() // プレイヤーの攻撃のためのメソッド!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 	
 
@@ -747,17 +749,20 @@ public class BattleController : MonoBehaviour
 		int calculatedDamage = 0;
 		if (enemyCharacterdatas != null && selectedPlayerDatas != null) {
 			switch (battlAction) {
+                //通常攻撃のとき
 			case EnumBattleAction.Weapon:
+
                     Sequence actions = new Sequence(new SequenceParms());
                     TweenParms parms = new TweenParms().Prop("position", selectedEnemy.transform.position - new Vector3(SpaceBetweenCharacterAndEnemy, 0, 0)).Ease(EaseType.EaseOutQuart);
                     TweenParms parmsResetPlayerPosition = new TweenParms().Prop("position", selectedPlayer.transform.position).Ease(EaseType.EaseOutQuart);
-                    actions.Append(HOTween.To(selectedPlayer.transform, 0.5f, parms));
-                    actions.Append(HOTween.To(selectedPlayer.transform, 0.5f, parmsResetPlayerPosition));
+                    actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parms));
+                    actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parmsResetPlayerPosition));
                     actions.Play();
                     calculatedDamage = BattlePanels.SelectedWeapon.Attack + selectedPlayerDatas.GetAttack () - enemyCharacterdatas.Defense; 
-				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
-				enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
-				ShowPopup ("-"+calculatedDamage.ToString (), selectedEnemy.transform.position);
+				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage); //public static float Clamp (float value, float min, float max);
+                    enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
+                    Log("相手に" + calculatedDamage.ToString() + "ダメージ");
+                    ShowPopup ("-"+calculatedDamage.ToString (), selectedEnemy.transform.position);
 				selectedEnemy.BroadcastMessage ("SetHPValue",enemyCharacterdatas.MaxHP<=0?0 :  enemyCharacterdatas.HP*100/enemyCharacterdatas.MaxHP);
 				Destroy( Instantiate (WeaponParticleEffect, selectedEnemy.transform.localPosition, Quaternion.identity),1.5f);
                     SoundManager.WeaponSound();
@@ -765,6 +770,7 @@ public class BattleController : MonoBehaviour
 					selectedEnemy.SendMessage("Animate",EnumBattleState.Hit.ToString());
 					
 					 break;
+                    // まほうを使うとき
 			case EnumBattleAction.Magic:
 				calculatedDamage = BattlePanels.SelectedSpell.Attack + selectedPlayerDatas.GetMagic () - enemyCharacterdatas.MagicDefense; 
 				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
@@ -785,6 +791,7 @@ public class BattleController : MonoBehaviour
 					selectedEnemy.SendMessage("Animate",EnumBattleState.Hit.ToString());
 					
                     break;
+                    // アイテムを使うとき
 			case EnumBattleAction.Item:
 				calculatedDamage = BattlePanels.SelectedItem.Attack - enemyCharacterdatas.MagicDefense; 
 				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
@@ -806,9 +813,9 @@ public class BattleController : MonoBehaviour
 			KillCharacter (selectedEnemy);
 		//selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
 		selectedEnemy = null;
+        Invoke("NextBattleSequence", 2.0f);
 
-
-		NextBattleSequence();
+		//NextBattleSequence();
 	}
 
     /// <summary>
@@ -833,16 +840,17 @@ public class BattleController : MonoBehaviour
 	if (enemyCharacterdatas != null && selectedPlayerDatas != null) {
 			switch (battlAction) {
 			case EnumBattleAction.Weapon:
-				calculatedDamage = enemyCharacterdatas.Attack - playerToAttackDatas.Defense; 
+                calculatedDamage = enemyCharacterdatas.Attack - playerToAttackDatas.Defense; 
 				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
 				playerToAttackDatas.HP = Mathf.Clamp (playerToAttackDatas.HP - calculatedDamage , 0 ,playerToAttackDatas.HP - calculatedDamage);
-				ShowPopup ("-"+calculatedDamage.ToString (), playerToAttack.transform.position);
+                    //与えたダメージ量をホップアップ
+                    Log("味方に"+ calculatedDamage.ToString() + "ダメージ");
+                    ShowPopup ("-"+calculatedDamage.ToString (), playerToAttack.transform.position);
 				playerToAttack.BroadcastMessage ("SetHPValue",playerToAttackDatas.MaxHP<=0 ?0 : playerToAttackDatas.HP*100/playerToAttackDatas.MaxHP);
 				Destroy( Instantiate (WeaponParticleEffect, playerToAttack.transform.localPosition, Quaternion.identity),1.5f);
                     SoundManager.WeaponSound();
                    go.SendMessage("Animate",EnumBattleState.Attack.ToString());
 				   playerToAttack.SendMessage("Animate",EnumBattleState.Hit.ToString());
-				
 				    break;
 			
 			default:
@@ -864,8 +872,10 @@ public class BattleController : MonoBehaviour
 			KillCharacter (playerToAttack);
 		//selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
 		selectedEnemy = null;
+        selectedPlayerDatas = null;
+        Invoke("NextBattleSequence", 1.5f);
 
-	}
+    }
 
     /// <summary>
     /// Kills the character.
