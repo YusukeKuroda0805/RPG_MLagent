@@ -452,11 +452,12 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Generates the turn by turn sequence.
     /// </summary>
-    void GenerateTurnByTurnSequence()//ターンごとのシーケンスを生成
+    void GenerateTurnByTurnSequence()//ターンごとのシーケンスを生成!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
 		var x = 0;
 		var y = 0;
 		var z = 0;
+
 		var indexInRange = true;
 		while (indexInRange)
 		{
@@ -466,13 +467,14 @@ public class BattleController : MonoBehaviour
                 break;
             }
 
-            if (x % 2 == 0 && instantiatedCharacterList.Count - 1 >= y)
+            if (x < 2  && instantiatedCharacterList.Count - 1 >= y)//!!!!!!!!!!!!!!プレイヤー陣営が先制
             {
                 turnByTurnSequenceList.Add(new Tuple<EnumPlayerOrEnemy, GameObject>(EnumPlayerOrEnemy.Player, instantiatedCharacterList[y]));
                 y++;
             }
 
-            else if (x % 2 != 0 && generatedEnemyList.Count - 1 >= z)
+            else if (x >= 2 && generatedEnemyList.Count - 1 >= z)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             {
                 turnByTurnSequenceList.Add(new Tuple<EnumPlayerOrEnemy, GameObject>(EnumPlayerOrEnemy.Enemy, generatedEnemyList[z]));
                 z++;
