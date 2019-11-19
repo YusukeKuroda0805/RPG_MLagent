@@ -264,15 +264,15 @@ public class BattleController : MonoBehaviour
                     SelectTheFirstEnemy();
                     PositionTargetSelector(selectedEnemy);
                     AcceptDecision();
-                    count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    //count = 0;
+                    //count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    count = 0;
                 }
 
-                else if(count == 2)
-                {
-                    Debug.Log("主人公の2回目のターン");
-                    currentState = EnumBattleState.FeedBack;
-                }
+                //else if(count == 2)
+                //{
+                //    Debug.Log("主人公の2回目のターン");
+                //    currentState = EnumBattleState.FeedBack;
+                //}
                 break;
 
                 //勝利したとき
