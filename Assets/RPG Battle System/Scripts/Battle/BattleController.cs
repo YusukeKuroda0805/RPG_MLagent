@@ -141,7 +141,10 @@ public class BattleController : MonoBehaviour
     /// </summary>
     /// 
 
-    private int count = 0;
+    private int count = 0;//これで行動順が主人公か仲間かを識別している
+    public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
+    public int nowFeedbackCount = 0; //フィードバックの回数を計測
+    public int battleTurn = 1;
 
     void Awake()
 	{
@@ -180,167 +183,268 @@ public class BattleController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        //timecount += Time.deltaTime;
-        //if (timecount>1)
-        //{
-        //    Debug.Log(currentState);
-        //    count = 0;
-        //}
-
         if (HOTween.GetAllPlayingTweens().Any())
             return;
-
-        switch (currentState)
+        timecount++;
+        Debug.Log(timecount+"秒経過");
+        //ターンごとのフィードバックの回数を入力
+        if (Input.GetKeyDown(KeyCode.G))
         {
-            // 狙う敵を選択するフェーズ
-            case EnumBattleState.SelectingTarget:
+            nowFeedbackCount++;
+            Debug.Log("Good!");
+        }
+        
+        if(currentState == EnumBattleState.SelectingTarget)
+        {
+            //// 狙う敵を選択するフェーズ
+            //case EnumBattleState.SelectingTarget:
                 //Detecting if the player clicked on the left mouse button and also if there is no animation playing
                 // プレーヤーがマウスの左ボタンをクリックしたかどうか、およびアニメーションが再生されていないかどうかを検出する
                 if (Input.GetButtonDown("Fire1"))
+            {
+                //The 3 following lines is to get the clicked GameObject and getting the RaycastHit2D that will help us know the clicked object
+                //次の3行は、クリックされたGameObjectを取得し、クリックされたオブジェクトを知るのに役立つRaycastHit2Dを取得することです。
+                RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+                if (hit.transform != null)
                 {
-                    //The 3 following lines is to get the clicked GameObject and getting the RaycastHit2D that will help us know the clicked object
-                    //次の3行は、クリックされたGameObjectを取得し、クリックされたオブジェクトを知るのに役立つRaycastHit2Dを取得することです。
-                    RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-                    if (hit.transform != null)
+
+
+                    bool foundEnemy = false;
+                    foreach (var x in generatedEnemyList)
                     {
+                        // マウスで選択した敵へターゲットを定める
+                        if (x.GetInstanceID() == hit.transform.gameObject.GetInstanceID())
+                        {
+                            foundEnemy = true;
+                            selectedEnemy = hit.transform.gameObject;
+                            PositionTargetSelector(selectedEnemy);
+                            //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            Log("プレイヤーの攻撃！！");
+                            AcceptDecision();
+
+                            break;
+                        }
+                    }
+                    if (!foundEnemy)
+                        return;
+                }
+            }
+            
+        }
+        else if (currentState == EnumBattleState.EnemyTurn)
+        {
+            Log(GameTexts.EnemyTurn);
+            var z = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player);
+            // ElementAt 指定したインデックスのデータを返す
+            var playerTargetedByEnemy = z.ElementAt(UnityEngine.Random.Range(0, z.Count() - 1));
+            // 攻撃するターゲットを決める
+            var playerTargetedByEnemyDatas = GetCharacterDatas(playerTargetedByEnemy.Second.name);
+            // 矢印をターゲットの向きに変更
+            PositionTargetSelector(playerTargetedByEnemy.Second);
+            EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
+            //PositionTargetSelector(playerTargetedByEnemy.Second);
+            //Invoke("NextBattleSequence", 2.0f);
+        }
+        else if(currentState == EnumBattleState.PlayerTurn)
+        {
+            Log(GameTexts.PlayerTurn);
+            HideTargetSelector();
+            // 主人公の行動
+            if (count == 0)
+            {
+                Debug.Log("主人公のターン");
+                //Debug.Log(selectedPlayerDatas);
+                count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ShowMenu();//メニューを表示する
+                currentState = EnumBattleState.None;
+            }
+
+            // 仲間の行動
+            else if (count == 1)
+            {
+                Debug.Log("仲間のターン");
+                //Debug.Log(selectedPlayerDatas);
+                SelectTheFirstEnemy();
+                PositionTargetSelector(selectedEnemy);
+                AcceptDecision();
+                count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+        }
+        else if (currentState == EnumBattleState.PlayerWon)
+        {
+            Log(GameTexts.PlayerWon);
+            HideTargetSelector();
+            HideMenu();
+            int totalXP = 0;
+            //経験値の処理
+            foreach (var x in generatedEnemyList)
+            {
+                totalXP += x.GetComponent<EnemyCharacterDatas>().XP;
+            }
+
+            foreach (var x in turnByTurnSequenceList)
+            {
+                var characterdatas = GetCharacterDatas(x.Second.name);
+                characterdatas.XP += totalXP;
+                var calculatedXP = Math.Floor(Math.Sqrt(625 + 100 * characterdatas.XP) - 25) / 50;
+                characterdatas.Level = (int)calculatedXP;
+            }
+            var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + GameTexts.PlayerXP + totalXP;
+            ShowDropMenu(textTodisplay);
+            currentState = EnumBattleState.EndBattle;
+            var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
+            if (go) go.GetComponent<AudioSource>().Stop();
+            SoundManager.WinningMusic();
+        }
+        else if(currentState == EnumBattleState.EnemyWon)
+        {
+            Log(GameTexts.EnemyWon);
+            HideTargetSelector();
+            HideMenu();
+
+            var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + GameTexts.YouLost;
+            ShowDropMenu(textTodisplay);
+
+            currentState = EnumBattleState.None;
+            var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
+            if (go) go.GetComponent<AudioSource>().Stop();
+            SoundManager.GameOverMusic();
+        }
+
+        //switch (currentState)
+        //{
+            //// 狙う敵を選択するフェーズ
+            //case EnumBattleState.SelectingTarget:
+            //    //Detecting if the player clicked on the left mouse button and also if there is no animation playing
+            //    // プレーヤーがマウスの左ボタンをクリックしたかどうか、およびアニメーションが再生されていないかどうかを検出する
+            //    if (Input.GetButtonDown("Fire1"))
+            //    {
+            //        //The 3 following lines is to get the clicked GameObject and getting the RaycastHit2D that will help us know the clicked object
+            //        //次の3行は、クリックされたGameObjectを取得し、クリックされたオブジェクトを知るのに役立つRaycastHit2Dを取得することです。
+            //        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+            //        if (hit.transform != null)
+            //        {
 
                         
-                        bool foundEnemy = false;
-                        foreach (var x in generatedEnemyList)
-                        {
-                            // マウスで選択した敵へターゲットを定める
-                            if (x.GetInstanceID() == hit.transform.gameObject.GetInstanceID())
-                            {
-                                foundEnemy = true;
-                                selectedEnemy = hit.transform.gameObject;
-                                PositionTargetSelector(selectedEnemy);
-                                //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                Log("プレイヤーの攻撃！！");
-                                AcceptDecision();
+            //            bool foundEnemy = false;
+            //            foreach (var x in generatedEnemyList)
+            //            {
+            //                // マウスで選択した敵へターゲットを定める
+            //                if (x.GetInstanceID() == hit.transform.gameObject.GetInstanceID())
+            //                {
+            //                    foundEnemy = true;
+            //                    selectedEnemy = hit.transform.gameObject;
+            //                    PositionTargetSelector(selectedEnemy);
+            //                    //　決定を押したときの処理を直接ここに書いてしまう!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //                    Log("プレイヤーの攻撃！！");
+            //                    AcceptDecision();
 
-                                break;
-                            }
-                        }
-                        if (!foundEnemy)
-                            return;
-                    }
-                }
-                break;
+            //                    break;
+            //                }
+            //            }
+            //            if (!foundEnemy)
+            //                return;
+            //        }
+            //    }
+            //    break;
 
-            // 敵の攻撃フェーズ
-            case EnumBattleState.EnemyTurn:
-                Log(GameTexts.EnemyTurn);
-                var z = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player);
-                // ElementAt 指定したインデックスのデータを返す
-                var playerTargetedByEnemy = z.ElementAt(UnityEngine.Random.Range(0, z.Count() - 1));
-                // 攻撃するターゲットを決める
-                var playerTargetedByEnemyDatas = GetCharacterDatas(playerTargetedByEnemy.Second.name);
-                // 矢印をターゲットの向きに変更
-                PositionTargetSelector(playerTargetedByEnemy.Second);
-                EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
-                //PositionTargetSelector(playerTargetedByEnemy.Second);
-                //Invoke("NextBattleSequence", 2.0f);
-                break;
+            //// 敵の攻撃フェーズ
+            //case EnumBattleState.EnemyTurn:
+            //    Log(GameTexts.EnemyTurn);
+            //    var z = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player);
+            //    // ElementAt 指定したインデックスのデータを返す
+            //    var playerTargetedByEnemy = z.ElementAt(UnityEngine.Random.Range(0, z.Count() - 1));
+            //    // 攻撃するターゲットを決める
+            //    var playerTargetedByEnemyDatas = GetCharacterDatas(playerTargetedByEnemy.Second.name);
+            //    // 矢印をターゲットの向きに変更
+            //    PositionTargetSelector(playerTargetedByEnemy.Second);
+            //    EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
+            //    //PositionTargetSelector(playerTargetedByEnemy.Second);
+            //    //Invoke("NextBattleSequence", 2.0f);
+            //    break;
 
-            // プレイヤーの攻撃フェーズ
-           　　 // プレイヤのターン
-            case EnumBattleState.PlayerTurn:
-                Log(GameTexts.PlayerTurn);
-                HideTargetSelector();
-                // 主人公の行動
-                if (count == 0) {
-                    Debug.Log("主人公のターン");
-                    //Debug.Log(selectedPlayerDatas);
-                    count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    ShowMenu();//メニューを表示する
-                    currentState = EnumBattleState.None;
-                }
+            //// プレイヤーの攻撃フェーズ
+           　//　 // プレイヤのターン
+            //case EnumBattleState.PlayerTurn:
+            //    Log(GameTexts.PlayerTurn);
+            //    HideTargetSelector();
+            //    // 主人公の行動
+            //    if (count == 0) {
+            //        Debug.Log("主人公のターン");
+            //        //Debug.Log(selectedPlayerDatas);
+            //        count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //        ShowMenu();//メニューを表示する
+            //        currentState = EnumBattleState.None;
+            //    }
 
-                // 仲間の行動
-                else if (count == 1)
-                {
-                    Debug.Log("仲間のターン");
-                    //Debug.Log(selectedPlayerDatas);
-                    SelectTheFirstEnemy();
-                    PositionTargetSelector(selectedEnemy);
-                    AcceptDecision();
-                    //count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    count = 0;
-                }
+            //    // 仲間の行動
+            //    else if (count == 1)
+            //    {
+            //        Debug.Log("仲間のターン");
+            //        //Debug.Log(selectedPlayerDatas);
+            //        SelectTheFirstEnemy();
+            //        PositionTargetSelector(selectedEnemy);
+            //        AcceptDecision();
+            //        count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //    }
+            //    break;
 
-                //else if(count == 2)
-                //{
-                //    Debug.Log("主人公の2回目のターン");
-                //    currentState = EnumBattleState.FeedBack;
-                //}
-                break;
+            //    //勝利したとき
+            //case EnumBattleState.PlayerWon:
+            //    Log(GameTexts.PlayerWon);
+            //    HideTargetSelector();
+            //    HideMenu();
+            //    int totalXP = 0;
+            //    //経験値の処理
+            //    foreach (var x in generatedEnemyList)
+            //    {
+            //        totalXP += x.GetComponent<EnemyCharacterDatas>().XP;
+            //    }
 
-                //勝利したとき
-            case EnumBattleState.PlayerWon:
-                Log(GameTexts.PlayerWon);
-                HideTargetSelector();
-                HideMenu();
-                int totalXP = 0;
-                //経験値の処理
-                foreach (var x in generatedEnemyList)
-                {
-                    totalXP += x.GetComponent<EnemyCharacterDatas>().XP;
-                }
+            //    foreach (var x in turnByTurnSequenceList)
+            //    {
+            //        var characterdatas = GetCharacterDatas(x.Second.name);
+            //        characterdatas.XP += totalXP;
+            //        var calculatedXP = Math.Floor(Math.Sqrt(625 + 100 * characterdatas.XP) - 25) / 50;
+            //        characterdatas.Level = (int)calculatedXP;
+            //    }
+            //    var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + GameTexts.PlayerXP + totalXP;
+            //    ShowDropMenu(textTodisplay);
+            //    currentState = EnumBattleState.EndBattle;
+            //    var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
+            //    if (go) go.GetComponent<AudioSource>().Stop();
+            //    SoundManager.WinningMusic();
+            //    break;
 
-                foreach (var x in turnByTurnSequenceList)
-                {
-                    var characterdatas = GetCharacterDatas(x.Second.name);
-                    characterdatas.XP += totalXP;
-                    var calculatedXP = Math.Floor(Math.Sqrt(625 + 100 * characterdatas.XP) - 25) / 50;
-                    characterdatas.Level = (int)calculatedXP;
-                }
-                var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + GameTexts.PlayerXP + totalXP;
-                ShowDropMenu(textTodisplay);
-                currentState = EnumBattleState.EndBattle;
-                var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
-                if (go) go.GetComponent<AudioSource>().Stop();
-                SoundManager.WinningMusic();
-                break;
+            //case EnumBattleState.EnemyWon:
+            //    Log(GameTexts.EnemyWon);
+            //    HideTargetSelector();
+            //    HideMenu();
 
-            case EnumBattleState.EnemyWon:
-                Log(GameTexts.EnemyWon);
-                HideTargetSelector();
-                HideMenu();
+            //    textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + GameTexts.YouLost;
+            //    ShowDropMenu(textTodisplay);
 
-                textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + GameTexts.YouLost;
-                ShowDropMenu(textTodisplay);
+            //    currentState = EnumBattleState.None;
+            //    go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
+            //    if (go) go.GetComponent<AudioSource>().Stop();
+            //    SoundManager.GameOverMusic();
+            //    break;
 
-                currentState = EnumBattleState.None;
-                go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
-                if (go) go.GetComponent<AudioSource>().Stop();
-                SoundManager.GameOverMusic();
-                break;
+            //default:
+            //    break;
 
-            case EnumBattleState.FeedBack:
-                ShowFeedBackMenu();
-                break;
-
-            default:
-                break;
-
-        }
+        //}
     }
-//	else if (currentState == EnumBattleState.SelectingTarget) {
-            
-//	}
-//	else if (currentState == EnumBattleState.EnemyTurn)
-//	{                                                       
-//	}
-//	else if (currentState == EnumBattleState.PlayerTurn)
-//	{     
-//	}
-//	else if (currentState == EnumBattleState.PlayerWon)
-//	{
-//	}
-//	else if (currentState == EnumBattleState.EnemyWon)
-//	{  
-//        }
-//}
+
+    //そのターンのフィードバック回数を記録
+    public void AggregateFB()
+    {
+        feedbackCountList.Add(nowFeedbackCount);
+        Debug.Log(battleTurn + "ターン目のフィードバックは" + feedbackCountList[battleTurn - 1] + "回");
+        nowFeedbackCount = 0;
+        battleTurn++;
+    }
+
 
     /// <summary>
     /// Gets the character datas.
@@ -712,23 +816,23 @@ public class BattleController : MonoBehaviour
 		PlayerAction();
 	}
 
-    public void FeedBackGood()
-    {
-        Debug.Log("Good");
-        //Debug.Log(selectedPlayerDatas);
-        count = 0; ;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        currentState = EnumBattleState.PlayerTurn;
-        uiGameObject.BroadcastMessage("HideFeedBack");
-    }
+    //public void FeedBackGood()
+    //{
+    //    Debug.Log("Good");
+    //    //Debug.Log(selectedPlayerDatas);
+    //    count = 0; ;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //    currentState = EnumBattleState.PlayerTurn;
+    //    uiGameObject.BroadcastMessage("HideFeedBack");
+    //}
 
-    public void FeedBackBad()
-    {
-        Debug.Log("Bad");
-        //Debug.Log(selectedPlayerDatas);
-        count = 1; ;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ShowMenu();//メニューを表示する
-        currentState = EnumBattleState.None;
-    }
+    //public void FeedBackBad()
+    //{
+    //    Debug.Log("Bad");
+    //    //Debug.Log(selectedPlayerDatas);
+    //    count = 1; ;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //    ShowMenu();//メニューを表示する
+    //    currentState = EnumBattleState.None;
+    //}
 
     /// <summary>
     /// Ends the battle.
@@ -815,6 +919,7 @@ public class BattleController : MonoBehaviour
 			KillCharacter (selectedEnemy);
 		//selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
 		selectedEnemy = null;
+        //NextBattleSequence();
         Invoke("NextBattleSequence", 2.0f);
 
 		//NextBattleSequence();
@@ -875,8 +980,9 @@ public class BattleController : MonoBehaviour
 		//selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
 		selectedEnemy = null;
         selectedPlayerDatas = null;
+        //NextBattleSequence();
         Invoke("NextBattleSequence", 1.5f);
-
+        AggregateFB();
     }
 
     /// <summary>
