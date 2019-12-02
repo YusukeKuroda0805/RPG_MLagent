@@ -145,6 +145,7 @@ public class BattleController : MonoBehaviour
     public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
     public int nowFeedbackCount = 0; //フィードバックの回数を計測
     public int battleTurn = 1;
+    public int indexSelectAction = 0;
 
     void Awake()
 	{
@@ -185,8 +186,8 @@ public class BattleController : MonoBehaviour
     {
         if (HOTween.GetAllPlayingTweens().Any())
             return;
-        timecount++;
-        Debug.Log(timecount+"秒経過");
+        //timecount++;
+        //Debug.Log(timecount+"秒経過");
         //ターンごとのフィードバックの回数を入力
         if (Input.GetKeyDown(KeyCode.G))
         {
@@ -263,15 +264,10 @@ public class BattleController : MonoBehaviour
             else if (count == 1)
             {
                 Debug.Log("仲間のターン");
-                //Debug.Log(selectedPlayerDatas);
-                battlAction = EnumBattleAction.Magic;
-                //ItemsUI toggleItem = selectedToggle.GetComponent<ItemsUI>();
-                //var itemDatas = BattlePanels.SelectedCharacter.SpellsList.Where(w => w.Name == toggleItem.Name.text).FirstOrDefault();
-                BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[0];
-                PositionTargetSelector(selectedEnemy);
+                DrawAction();//仲間の行動パターンを抽選
+                //BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[indexSelectAction];
+                //MagicAction();
                 AcceptDecision();
-                PlayerAction();
-
                 count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             }
         }
@@ -441,13 +437,23 @@ public class BattleController : MonoBehaviour
         //}
     }
 
-    //そのターンのフィードバック回数を記録
+    //そのターンのフィードバック回数を記録!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public void AggregateFB()
     {
         feedbackCountList.Add(nowFeedbackCount);
         Debug.Log(battleTurn + "ターン目のフィードバックは" + feedbackCountList[battleTurn - 1] + "回");
         nowFeedbackCount = 0;
         battleTurn++;
+    }
+
+    //プレイヤーの行動パターンを抽選
+    public void DrawAction()
+    {
+        int value = UnityEngine.Random.Range(0, 2);
+        indexSelectAction = value;
+
+        BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[indexSelectAction];
+        MagicAction();
     }
 
 
@@ -513,9 +519,10 @@ public class BattleController : MonoBehaviour
 			calculatedPosition = calculatedPosition - SpaceBetweenCharacters;
 		    GameObject go = GameObject.Instantiate (PossibleEnnemies [UnityEngine.Random.Range ((int)0, (int)PossibleEnnemies.Count )],
 				         new Vector3 (EnnemyXPosition, calculatedPosition, 1), Quaternion.identity) as GameObject;
-			
-			 
+
+            //Debug.Log("sldfk;gsl;gl;:sdklfg:;lskdfg;:lskdf;lgks:;lkfg:;lsdkg;:lsk");
 			generatedEnemyList.Add(go);
+            Debug.Log("ボスキャラ" + generatedEnemyList[0]);
 
 		}
 
@@ -669,7 +676,7 @@ public class BattleController : MonoBehaviour
 		currentState = EnumBattleState.SelectingTarget;
 		battlAction = EnumBattleAction.Magic;
 		SelectTheFirstEnemy();
-		HideMenu();
+		//HideMenu();
 		//ShowDecision();
 
 	}
@@ -873,7 +880,7 @@ public class BattleController : MonoBehaviour
                     calculatedDamage = BattlePanels.SelectedWeapon.Attack + selectedPlayerDatas.GetAttack () - enemyCharacterdatas.Defense; 
 				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage); //public static float Clamp (float value, float min, float max);
                     enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
-                    Log("相手に" + calculatedDamage.ToString() + "ダメージ");
+                    Log("主人公の攻撃!!");
                     ShowPopup ("-"+calculatedDamage.ToString (), selectedEnemy.transform.position);
 				selectedEnemy.BroadcastMessage ("SetHPValue",enemyCharacterdatas.MaxHP<=0?0 :  enemyCharacterdatas.HP*100/enemyCharacterdatas.MaxHP);
 				Destroy( Instantiate (WeaponParticleEffect, selectedEnemy.transform.localPosition, Quaternion.identity),1.5f);
@@ -888,7 +895,8 @@ public class BattleController : MonoBehaviour
 				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
 				enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
 				selectedPlayerDatas.MP = Mathf.Clamp ( selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount, 0 ,selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount);
-				ShowPopup (calculatedDamage.ToString (), selectedEnemy.transform.localPosition);
+                Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                ShowPopup (calculatedDamage.ToString (), selectedEnemy.transform.localPosition);
 				ShowPopup ("-"+calculatedDamage.ToString (), selectedEnemy.transform.position);
 				selectedEnemy.BroadcastMessage ("SetHPValue",enemyCharacterdatas.MaxHP<=0?0 :  enemyCharacterdatas.HP*100/enemyCharacterdatas.MaxHP);
 				selectedPlayer.BroadcastMessage ("SetMPValue",selectedPlayerDatas.MaxMP <= 0 ? 0 : selectedPlayerDatas.MP*100/selectedPlayerDatas.MaxMP);

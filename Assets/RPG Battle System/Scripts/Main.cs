@@ -199,9 +199,13 @@ public class Main : MonoBehaviour,ISerializable
         }
 
         //アイテムリスト
-        ItemList.Add(Datas.ItemsData[29]);//やくそう
-        ItemList.Add(Datas.ItemsData[30]);//上やくそう
-        ItemList.Add(Datas.ItemsData[31]);//特やくそう
+        //ItemList.Add(Datas.ItemsData[29]);//やくそう
+        //ItemList.Add(Datas.ItemsData[30]);//上やくそう
+        for(int i = 0; i < 30; i++)
+        {
+            ItemList.Add(Datas.ItemsData[31]);//特やくそう
+        }
+        //ItemList.Add(Datas.ItemsData[31]);//特やくそう
         
 				
 	}
