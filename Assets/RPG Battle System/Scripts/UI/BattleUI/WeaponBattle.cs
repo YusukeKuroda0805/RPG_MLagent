@@ -100,7 +100,7 @@ public class WeaponBattle : MonoBehaviour {
     /// <param name="gameObject">The gameobject that sent the action</param>
     /// </summary>
     /// <param name="toggle">The toggle.</param>
-    public void ToggleSelectAction(Toggle toggle)
+    public void ToggleSelectAction(Toggle toggle)//選択したアクションを実行したときに呼び出される!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 		Contract.Requires<MissingComponentException> (toggle != null); //何のためにやってるのか不明ｗ
         SoundManager.UISound();

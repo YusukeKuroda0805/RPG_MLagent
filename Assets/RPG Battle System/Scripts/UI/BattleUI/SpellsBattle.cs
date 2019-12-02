@@ -85,7 +85,7 @@ public class SpellsBattle : MonoBehaviour {
     /// <param name="gameObject">The gameobject that sent the action</param>
     /// </summary>
     /// <param name="toggle">The toggle.</param>
-    public void ToggleSelectAction(Toggle toggle)
+    public void ToggleSelectAction(Toggle toggle)//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 		Contract.Requires<MissingComponentException> (toggle != null);
         SoundManager.UISound();

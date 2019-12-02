@@ -264,9 +264,14 @@ public class BattleController : MonoBehaviour
             {
                 Debug.Log("仲間のターン");
                 //Debug.Log(selectedPlayerDatas);
-                SelectTheFirstEnemy();
+                battlAction = EnumBattleAction.Magic;
+                //ItemsUI toggleItem = selectedToggle.GetComponent<ItemsUI>();
+                //var itemDatas = BattlePanels.SelectedCharacter.SpellsList.Where(w => w.Name == toggleItem.Name.text).FirstOrDefault();
+                BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[0];
                 PositionTargetSelector(selectedEnemy);
                 AcceptDecision();
+                PlayerAction();
+
                 count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             }
         }
@@ -723,6 +728,7 @@ public class BattleController : MonoBehaviour
     // 矢印の表示、非表示の切り替え
     public void HideTargetSelector()
 	{
+
 		instantiatedTargetSelector.SetActive(false);
 	}
 
