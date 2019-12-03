@@ -63,8 +63,8 @@ public class Datas
 		character.Type = EnumCharacterType.Warrior;
 		character.Level = 1;
 		character.PicturesName  = "Sam";
-		character.HP = 100;
-		character.MaxHP = 100;
+		character.HP = 300;
+		character.MaxHP = 300;
 		character.MP = 50;
 		character.MaxMP = 50;
 
@@ -75,10 +75,10 @@ public class Datas
 		character.Type = EnumCharacterType.Wizard;
 		character.Level = 1;
 		character.PicturesName  = "Lilia";
-		character.HP = 100;
-		character.MaxHP = 100;
-		character.MP = 100;
-		character.MaxMP = 100;
+		character.HP = 300;
+		character.MaxHP = 300;
+		character.MP = 300;
+		character.MaxMP = 300;
 
 		CharactersData[2]= character;
 
@@ -502,81 +502,146 @@ public class Datas
         spell.SoundEffect = "spell3";
         SpellsData[2]= spell;
 
-		//spell = new SpellsData();
-		//spell.Name = "ダーク";
-		//spell.Description = "Send a shadow ball on your ennemies";
-		//spell.AllowedCharacterType = EnumCharacterType.Wizard;
-		//spell.PicturesName  = "S_Shadow01";
-		//spell.ManaAmount = 15;
-		//spell.Attack = 20;
-  //      spell.ParticleEffect = "IceWave";
-  //      spell.SoundEffect = "foom_0";
-  //      SpellsData[3]= spell;
-
-		//spell = new SpellsData();
-		//spell.Name = "じしん";
-		//spell.Description = "Shake the ground";
-		//spell.AllowedCharacterType = EnumCharacterType.Wizard;
-		//spell.PicturesName  = "S_Earth01";
-		//spell.ManaAmount = 20;
-		//spell.Attack = 30;
-  //      spell.ParticleEffect = "IceWave";
-  //      spell.SoundEffect = "spell3";
-  //      SpellsData[4]= spell;
-
-
-		//spell = new SpellsData();
-		//spell.Name = "炎の壁";
-		//spell.Description = "Invok a firewall";
-		//spell.AllowedCharacterType = EnumCharacterType.Wizard;
-		//spell.PicturesName  = "S_Fire02";
-		//spell.ManaAmount = 30;
-		//spell.Attack = 35;
-  //      spell.ParticleEffect = "FireFlamish";
-  //      spell.SoundEffect = "foom_0";
-  //      SpellsData[5]= spell;
-
-
-		//spell = new SpellsData();
-		//spell.Name = "氷の鏡";
-		//spell.Description = "Freeze your ennemies inside";
-		//spell.AllowedCharacterType = EnumCharacterType.Wizard;
-		//spell.PicturesName  = "S_Ice07";
-		//spell.ManaAmount = 40;
-		//spell.Attack = 45;
-  //      spell.ParticleEffect = "IceCold";
-  //      SpellsData[6]= spell;
-
-
-
-		//spell = new SpellsData();
-		//spell.Name = "デス";
-		//spell.Description = "Open the gate for dead souls";
-		//spell.AllowedCharacterType = EnumCharacterType.Wizard;
-		//spell.PicturesName  = "S_Shadow06";
-		//spell.ManaAmount = 60;
-		//spell.Attack = 60;
-  //      spell.ParticleEffect = "IceStars";
-  //      spell.SoundEffect = "spell3";
-  //      SpellsData[7]= spell;
-
-
-
-		spell = new SpellsData();
-		spell.Name = "サンダー";
-		spell.Description = "A big thunder storm";
-		spell.AllowedCharacterType = EnumCharacterType.Wizard;
-		spell.PicturesName  = "S_Thunder07";
-		spell.ManaAmount = 150;
-		spell.Attack = 150;
+        spell = new SpellsData();
+        spell.Name = "サンダー";
+        spell.Description = "A big thunder storm";
+        spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        spell.PicturesName = "S_Thunder07";
+        spell.ManaAmount = 150;
+        spell.Attack = 150;
         spell.ParticleEffect = "IceStars";
         spell.SoundEffect = "spell3";
-        SpellsData[8]= spell;
+        SpellsData[3] = spell;
+
+        spell = new SpellsData();
+        spell.Name = "攻撃アップ";
+        spell.Description = "power up";
+        spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        spell.PicturesName = "S_Buff01";
+        spell.ManaAmount = 150;
+        spell.Attack = 0;
+        spell.ParticleEffect = "Magic_Aura";
+        spell.SoundEffect = "spell3";
+        SpellsData[4] = spell;
+
+        spell = new SpellsData();
+        spell.Name = "防御アップ";
+        spell.Description = "difensive up";
+        spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        spell.PicturesName = "S_Buff03";
+        spell.ManaAmount = 150;
+        spell.Attack = 0;
+        spell.ParticleEffect = "Magic_Aura";
+        spell.SoundEffect = "spell3";
+        SpellsData[5] = spell;
+
+        spell = new SpellsData();
+        spell.Name = "攻撃ダウン";
+        spell.Description = "enemy power down";
+        spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        spell.PicturesName = "S_Death01";
+        spell.ManaAmount = 150;
+        spell.Attack = 0;
+        spell.ParticleEffect = "Magic_Aura";
+        spell.SoundEffect = "spell3";
+        SpellsData[6] = spell;
+
+        spell = new SpellsData();
+        spell.Name = "防御ダウン";
+        spell.Description = "enemy difensive down";
+        spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        spell.PicturesName = "S_Death02";
+        spell.ManaAmount = 150;
+        spell.Attack = 0;
+        spell.ParticleEffect = "Magic_Aura";
+        spell.SoundEffect = "spell3";
+        SpellsData[7] = spell;
+
+        //spell = new SpellsData();
+        //spell.Name = "ヒール";
+        //spell.Description = "A big potion that add 60 Hp points";
+        //spell.PicturesName = "P_Red03";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.HealthPoint = 60;
+        //spell.SoundEffect = "spell3";
+        //SpellsData[4] = spell;
+
+
+        //spell = new SpellsData();
+        //spell.Name = "ダーク";
+        //spell.Description = "Send a shadow ball on your ennemies";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.PicturesName  = "S_Shadow01";
+        //spell.ManaAmount = 15;
+        //spell.Attack = 20;
+        //      spell.ParticleEffect = "IceWave";
+        //      spell.SoundEffect = "foom_0";
+        //      SpellsData[3]= spell;
+
+        //spell = new SpellsData();
+        //spell.Name = "じしん";
+        //spell.Description = "Shake the ground";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.PicturesName  = "S_Earth01";
+        //spell.ManaAmount = 20;
+        //spell.Attack = 30;
+        //      spell.ParticleEffect = "IceWave";
+        //      spell.SoundEffect = "spell3";
+        //      SpellsData[4]= spell;
+
+
+        //spell = new SpellsData();
+        //spell.Name = "炎の壁";
+        //spell.Description = "Invok a firewall";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.PicturesName  = "S_Fire02";
+        //spell.ManaAmount = 30;
+        //spell.Attack = 35;
+        //      spell.ParticleEffect = "FireFlamish";
+        //      spell.SoundEffect = "foom_0";
+        //      SpellsData[5]= spell;
+
+
+        //spell = new SpellsData();
+        //spell.Name = "氷の鏡";
+        //spell.Description = "Freeze your ennemies inside";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.PicturesName  = "S_Ice07";
+        //spell.ManaAmount = 40;
+        //spell.Attack = 45;
+        //      spell.ParticleEffect = "IceCold";
+        //      SpellsData[6]= spell;
+
+
+
+        //spell = new SpellsData();
+        //spell.Name = "デス";
+        //spell.Description = "Open the gate for dead souls";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.PicturesName  = "S_Shadow06";
+        //spell.ManaAmount = 60;
+        //spell.Attack = 60;
+        //      spell.ParticleEffect = "IceStars";
+        //      spell.SoundEffect = "spell3";
+        //      SpellsData[7]= spell;
+
+
+
+        //      spell = new SpellsData();
+        //spell.Name = "サンダー";
+        //spell.Description = "A big thunder storm";
+        //spell.AllowedCharacterType = EnumCharacterType.Wizard;
+        //spell.PicturesName  = "S_Thunder07";
+        //spell.ManaAmount = 150;
+        //spell.Attack = 150;
+        //      spell.ParticleEffect = "IceStars";
+        //      spell.SoundEffect = "spell3";
+        //      SpellsData[8]= spell;
 
 
 
 
-		spell = new SpellsData();
+        spell = new SpellsData();
 		spell.Name = "火炎斬り";
 		spell.Description = "A fire attack with sword";
 		spell.AllowedCharacterType = EnumCharacterType.Warrior;

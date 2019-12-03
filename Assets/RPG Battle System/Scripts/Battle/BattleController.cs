@@ -449,11 +449,18 @@ public class BattleController : MonoBehaviour
     //プレイヤーの行動パターンを抽選
     public void DrawAction()
     {
-        int value = UnityEngine.Random.Range(0, 2);
+        int value = UnityEngine.Random.Range(0, 6);//
         indexSelectAction = value;
 
-        BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[indexSelectAction];
-        MagicAction();
+        //if(indexSelectAction <= 3)
+        //{
+        //    ItemAction();
+        //}
+        //else 
+        //{
+            BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[indexSelectAction];
+            MagicAction();
+        //}
     }
 
 
@@ -891,25 +898,34 @@ public class BattleController : MonoBehaviour
 					 break;
                     // まほうを使うとき
 			case EnumBattleAction.Magic:
-				calculatedDamage = BattlePanels.SelectedSpell.Attack + selectedPlayerDatas.GetMagic () - enemyCharacterdatas.MagicDefense; 
-				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
-				enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
-				selectedPlayerDatas.MP = Mathf.Clamp ( selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount, 0 ,selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount);
-                Log("魔導士の" + BattlePanels.SelectedSpell.Name);
-                ShowPopup (calculatedDamage.ToString (), selectedEnemy.transform.localPosition);
-				ShowPopup ("-"+calculatedDamage.ToString (), selectedEnemy.transform.position);
-				selectedEnemy.BroadcastMessage ("SetHPValue",enemyCharacterdatas.MaxHP<=0?0 :  enemyCharacterdatas.HP*100/enemyCharacterdatas.MaxHP);
-				selectedPlayer.BroadcastMessage ("SetMPValue",selectedPlayerDatas.MaxMP <= 0 ? 0 : selectedPlayerDatas.MP*100/selectedPlayerDatas.MaxMP);
+                    if(indexSelectAction <= 2) //使用された魔法がファイヤ、アイス、サンダー
+                    {
+                        calculatedDamage = BattlePanels.SelectedSpell.Attack + selectedPlayerDatas.GetMagic() - enemyCharacterdatas.MagicDefense;
+                        calculatedDamage = Mathf.Clamp(calculatedDamage, 0, calculatedDamage);
+                        enemyCharacterdatas.HP = Mathf.Clamp(enemyCharacterdatas.HP - calculatedDamage, 0, enemyCharacterdatas.HP - calculatedDamage);
+                        selectedPlayerDatas.MP = Mathf.Clamp(selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount, 0, selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount);
+                        Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        ShowPopup(calculatedDamage.ToString(), selectedEnemy.transform.localPosition);
+                        ShowPopup("-" + calculatedDamage.ToString(), selectedEnemy.transform.position);
+                        selectedEnemy.BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
+                        selectedPlayer.BroadcastMessage("SetMPValue", selectedPlayerDatas.MaxMP <= 0 ? 0 : selectedPlayerDatas.MP * 100 / selectedPlayerDatas.MaxMP);
 
-                    var ennemyEffect = Resources.Load<GameObject>(Settings.PrefabsPath + BattlePanels.SelectedSpell.ParticleEffect);
-                    Destroy(Instantiate(ennemyEffect, selectedEnemy.transform.localPosition, Quaternion.identity), 0.5f);
+                        var ennemyEffect = Resources.Load<GameObject>(Settings.PrefabsPath + BattlePanels.SelectedSpell.ParticleEffect);
+                        Destroy(Instantiate(ennemyEffect, selectedEnemy.transform.localPosition, Quaternion.identity), 0.5f);
 
-                    var playerEffect = Resources.Load<GameObject>(Settings.PrefabsPath + Settings.MagicAuraEffect);
-                    Destroy( Instantiate (playerEffect, selectedPlayer.transform.localPosition, Quaternion.identity),0.4f);
-                    SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
-					selectedPlayer.SendMessage("Animate",EnumBattleState.Magic.ToString());
-					selectedEnemy.SendMessage("Animate",EnumBattleState.Hit.ToString());
-					
+                        var playerEffect = Resources.Load<GameObject>(Settings.PrefabsPath + Settings.MagicAuraEffect);
+                        Destroy(Instantiate(playerEffect, selectedPlayer.transform.localPosition, Quaternion.identity), 0.4f);
+                        SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
+                        selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
+                        selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
+                    }
+                    else if(3 <= indexSelectAction && indexSelectAction <= 6)//使用魔法がバフ、デバフ
+                    {
+                        Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
+                        selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
+                    }
+				
                     break;
                     // アイテムを使うとき
 			case EnumBattleAction.Item:
