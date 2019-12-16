@@ -364,6 +364,7 @@ GameObject:
   - component: {fileID: 375481704}
   - component: {fileID: 375481703}
   - component: {fileID: 375481701}
+  - component: {fileID: 375481702}
   m_Layer: 0
   m_Name: Battlelogic
   m_TagString: Logic
@@ -398,7 +399,23 @@ MonoBehaviour:
   WeaponParticleEffect: {fileID: 1307993304775662, guid: 339b4af3d8d619746ae7765b96c18045,
     type: 3}
   MagicParticleEffect: {fileID: 105272, guid: d88638cce5be089459aa4ae8b96b74e8, type: 3}
+  feedbackCountList: 
+  nowFeedbackCount: 0
+  battleTurn: 1
+  indexSelectAction: 0
   timecount: 0
+--- !u!114 &375481702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375481700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b52035d84929d964bb444179ff1c5cb9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &375481703
 CanvasRenderer:
   m_ObjectHideFlags: 0
