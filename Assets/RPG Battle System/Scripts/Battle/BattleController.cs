@@ -141,6 +141,13 @@ public class BattleController : MonoBehaviour
     /// </summary>
     /// 
 
+    public enum OperationType 
+    {
+        Attack,
+        balance,
+        support,
+    }
+    public OperationType AIType;
     private int count = 0;//これで行動順が主人公か仲間かを識別している
     public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
     public int nowFeedbackCount = 0; //フィードバックの回数を計測
@@ -150,7 +157,7 @@ public class BattleController : MonoBehaviour
 
     void Awake()
 	{
-		
+        OperationType AIType;
 		//キャラ、バトルUI等を呼び出す
         CharacterState = EnumCharacterState.Idle;
 		CharacterSide = EnumSide.Down;
@@ -172,9 +179,6 @@ public class BattleController : MonoBehaviour
         NextBattleSequence();
 		uiGameObject  = GameObject.FindGameObjectsWithTag(Settings.UI).FirstOrDefault();//FitstOrDefault シーケンスの最初を返す
 		HideDecision();
-	
-
-
 	}
 
 
@@ -333,10 +337,50 @@ public class BattleController : MonoBehaviour
         battleTurn++;
     }
 
+    public void defaultAI(int index)
+    {
+        switch (index)
+        {
+            case 1:
+                Debug.Log("攻撃重視");
+                break;
+
+            case 2:
+                Debug.Log("バランス重視");
+                break;
+
+            case 3:
+                Debug.Log("サポート重視");
+                break;
+
+            default:
+                break;
+        }
+    }
+
     //プレイヤーの行動パターンを抽選
     public void DrawAction()
     {
-        int value = UnityEngine.Random.Range(0, 6);//
+        int value = 0;
+
+        switch (AIType)
+        { 
+            case OperationType.Attack:
+                value = 0;//UnityEngine.Random.Range(0, 8);//
+                break;
+
+            case OperationType.balance:
+                value = 1;//UnityEngine.Random.Range(0, 8);//
+                break;
+
+            case OperationType.support:
+                value = 2;//UnityEngine.Random.Range(0, 8);//
+                break;
+
+            default:
+                break;
+        }
+        //int value = UnityEngine.Random.Range(0, 8);//
         indexSelectAction = value;
         BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[indexSelectAction];
         MagicAction();
@@ -546,13 +590,16 @@ public class BattleController : MonoBehaviour
     public void WeaponAction()//「こうげき」パネルを選択したら呼び出される
 
 	{
-		currentState = EnumBattleState.SelectingTarget;
+        selectedEnemy = GameObject.FindGameObjectWithTag("Enemy");
+        PositionTargetSelector(selectedEnemy);      
+        currentState = EnumBattleState.PlayerTurn;
 		battlAction = EnumBattleAction.Weapon;
 		SelectTheFirstEnemy();
 		HideMenu();
-		//ShowDecision();
+        AcceptDecision();
+        //ShowDecision();
 
-	}
+    }
 
 
     /// <summary>
@@ -778,7 +825,7 @@ public class BattleController : MonoBehaviour
                         selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
                         selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
                     }
-                    else if(3 <= indexSelectAction && indexSelectAction <= 6)//使用魔法がバフ、デバフ
+                    else if(3 <= indexSelectAction && indexSelectAction <= 7)//使用魔法がバフ、デバフ
                     {
                         Log("魔導士の" + BattlePanels.SelectedSpell.Name);
 
