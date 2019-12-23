@@ -1,9 +1,0 @@
-
-★ML-Agentsを起動する
-「activate ml-agents」を入力
-
-★トレーニングを開始する時のコマンド
-１「cd ＜ml-agentsフォルダ＞」を入力して、フォルダを移動してください。
-C:\Users\81901\Documents\ML-Agents\ml-agents-0.8.2
-
-２　以下のコマンドを打ち込む：mlagents-learn config/trainer_config.yaml --run-id=firstRun --train 

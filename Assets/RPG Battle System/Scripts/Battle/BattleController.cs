@@ -150,6 +150,8 @@ public class BattleController : MonoBehaviour
     public OperationType AIType;
     private int count = 0;//これで行動順が主人公か仲間かを識別している
     public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
+    public List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
+    public List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
     public int nowFeedbackCount = 0; //フィードバックの回数を計測
     public int battleTurn = 1;
     public int indexSelectAction = 0;
@@ -157,7 +159,7 @@ public class BattleController : MonoBehaviour
 
     void Awake()
 	{
-        OperationType AIType;
+        //OperationType AIType;
 		//キャラ、バトルUI等を呼び出す
         CharacterState = EnumCharacterState.Idle;
 		CharacterSide = EnumSide.Down;
@@ -302,6 +304,11 @@ public class BattleController : MonoBehaviour
             var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
             if (go) go.GetComponent<AudioSource>().Stop();
             SoundManager.WinningMusic();
+
+            if (battleTurn > FelloActions.Count) FelloActions.Add("主人公のアクションで終了");
+            EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
+            feedbackCountList.Add(nowFeedbackCount);
+            GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions);
         }
         else if(currentState == EnumBattleState.EnemyWon)
         {
@@ -316,7 +323,8 @@ public class BattleController : MonoBehaviour
             var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
             if (go) go.GetComponent<AudioSource>().Stop();
             SoundManager.GameOverMusic();
-        } 
+        }
+
     }
 
     public void PushGoodKey() //Gキーを押すことによ
@@ -366,7 +374,7 @@ public class BattleController : MonoBehaviour
         switch (AIType)
         { 
             case OperationType.Attack:
-                value = 0;//UnityEngine.Random.Range(0, 8);//
+                value = UnityEngine.Random.Range(0, 3);//UnityEngine.Random.Range(0, 8);//
                 break;
 
             case OperationType.balance:
@@ -537,6 +545,7 @@ public class BattleController : MonoBehaviour
     /// </summary>
     public void NextBattleSequence()//次のバトルシーケンス
     {
+        //GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions);
         receptionFB = true;
         var x =turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Enemy).Count ();
 		var y = turnByTurnSequenceList.Where (w => w.First == EnumPlayerOrEnemy.Player).Count ();
@@ -811,6 +820,7 @@ public class BattleController : MonoBehaviour
                         enemyCharacterdatas.HP = Mathf.Clamp(enemyCharacterdatas.HP - calculatedDamage, 0, enemyCharacterdatas.HP - calculatedDamage);
                         selectedPlayerDatas.MP = Mathf.Clamp(selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount, 0, selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount);
                         Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        FelloActions.Add(BattlePanels.SelectedSpell.Name); //仲間の行った特技を記録しておく
                         ShowPopup(calculatedDamage.ToString(), selectedEnemy.transform.localPosition);
                         ShowPopup("-" + calculatedDamage.ToString(), selectedEnemy.transform.position);
                         selectedEnemy.BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
@@ -870,8 +880,9 @@ public class BattleController : MonoBehaviour
     public void EnemyAttack(GameObject playerToAttack,CharactersData playerToAttackDatas )
 	{
 		var go = sequenceEnumerator.Current.Second;
-	
-		Sequence actions = new Sequence(new SequenceParms());
+        EnemyActions.Add("通常攻撃");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
+
+        Sequence actions = new Sequence(new SequenceParms());
 		TweenParms parms = new TweenParms().Prop("position", playerToAttack.transform.position + new Vector3(SpaceBetweenCharacterAndEnemy, 0, 0)).Ease(EaseType.EaseOutQuart);
 		TweenParms parmsResetPlayerPosition = new TweenParms().Prop("position", go.transform.position).Ease(EaseType.EaseOutQuart);
 		actions.Append(HOTween.To(go.transform, 0.5f, parms));
@@ -889,6 +900,7 @@ public class BattleController : MonoBehaviour
 				playerToAttackDatas.HP = Mathf.Clamp (playerToAttackDatas.HP - calculatedDamage , 0 ,playerToAttackDatas.HP - calculatedDamage);
                     //与えたダメージ量をホップアップ
                     Log("味方に"+ calculatedDamage.ToString() + "ダメージ");
+                    //EnemyActions.Add("通常攻撃");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
                     ShowPopup ("-"+calculatedDamage.ToString (), playerToAttack.transform.position);
 				playerToAttack.BroadcastMessage ("SetHPValue",playerToAttackDatas.MaxHP<=0 ?0 : playerToAttackDatas.HP*100/playerToAttackDatas.MaxHP);
 				Destroy( Instantiate (WeaponParticleEffect, playerToAttack.transform.localPosition, Quaternion.identity),1.5f);
