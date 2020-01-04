@@ -19,6 +19,7 @@ using Holoville.HOTween;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
+using DG.Tweening;
 
 
 
@@ -156,6 +157,13 @@ public class BattleController : MonoBehaviour
     public int battleTurn = 1;
     public int indexSelectAction = 0;
     public bool receptionFB = false; //フィードバックを受け付けるかどうか
+    public GameObject fadeout;
+    public GameObject goodPanel;
+    public GameObject gp;
+    public AudioClip goodse;
+    private bool isDefaultScale;
+
+
 
     void Awake()
 	{
@@ -181,6 +189,7 @@ public class BattleController : MonoBehaviour
         NextBattleSequence();
 		uiGameObject  = GameObject.FindGameObjectsWithTag(Settings.UI).FirstOrDefault();//FitstOrDefault シーケンスの最初を返す
 		HideDecision();
+        
 	}
 
 
@@ -201,8 +210,23 @@ public class BattleController : MonoBehaviour
         //    nowFeedbackCount++;
         //    Debug.Log("Good!");
         //}
-        
-        if(currentState == EnumBattleState.SelectingTarget)
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            if (isDefaultScale)
+            {
+                goodPanel.transform.DOScale(new Vector3(0, 0, 0), 0.2f);
+                isDefaultScale = false;
+            }
+            else if (!isDefaultScale)
+            {
+                goodPanel.transform.DOScale(new Vector3(1, 1, 1), 0.2f);
+                isDefaultScale = true;
+            }
+        }
+
+
+        if (currentState == EnumBattleState.SelectingTarget)
         {
             //// 狙う敵を選択するフェーズ
             //case EnumBattleState.SelectingTarget:
@@ -332,6 +356,22 @@ public class BattleController : MonoBehaviour
         if (receptionFB)
         {
             nowFeedbackCount++;
+            if(gp == null)
+            {
+                GameObject goodprefab = (GameObject)Instantiate(goodPanel);
+                goodprefab.transform.SetParent(fadeout.transform, false);
+                SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
+                gp = goodprefab;
+            }
+            else
+            {
+                Destroy(gp);
+                GameObject goodprefab = (GameObject)Instantiate(goodPanel);
+                goodprefab.transform.SetParent(fadeout.transform, false);
+                SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
+                gp = goodprefab;
+            }
+           
             Debug.Log("Good!");
         }
     }
@@ -793,7 +833,7 @@ public class BattleController : MonoBehaviour
                 //通常攻撃のとき
 			case EnumBattleAction.Weapon:
 
-                    Sequence actions = new Sequence(new SequenceParms());
+                    Holoville.HOTween.Sequence actions = new Holoville.HOTween.Sequence(new SequenceParms());
                     TweenParms parms = new TweenParms().Prop("position", selectedEnemy.transform.position - new Vector3(SpaceBetweenCharacterAndEnemy, 0, 0)).Ease(EaseType.EaseOutQuart);
                     TweenParms parmsResetPlayerPosition = new TweenParms().Prop("position", selectedPlayer.transform.position).Ease(EaseType.EaseOutQuart);
                     actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parms));
@@ -882,7 +922,7 @@ public class BattleController : MonoBehaviour
 		var go = sequenceEnumerator.Current.Second;
         EnemyActions.Add("通常攻撃");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
 
-        Sequence actions = new Sequence(new SequenceParms());
+        Holoville.HOTween.Sequence actions = new Holoville.HOTween.Sequence(new SequenceParms());
 		TweenParms parms = new TweenParms().Prop("position", playerToAttack.transform.position + new Vector3(SpaceBetweenCharacterAndEnemy, 0, 0)).Ease(EaseType.EaseOutQuart);
 		TweenParms parmsResetPlayerPosition = new TweenParms().Prop("position", go.transform.position).Ease(EaseType.EaseOutQuart);
 		actions.Append(HOTween.To(go.transform, 0.5f, parms));
@@ -942,7 +982,7 @@ public class BattleController : MonoBehaviour
     public void KillCharacter(GameObject go)
 	{
 		float time = 0.75f;
-		Sequence actions = new Sequence(new SequenceParms());
+        Holoville.HOTween.Sequence actions = new Holoville.HOTween.Sequence(new SequenceParms());
 		TweenParms parms = new TweenParms().Prop("color", new Color(1.0f, 1.0f, 1.0f, 0.0f)).Ease(EaseType.EaseOutQuart);
 		actions.Append(HOTween.To(go.GetComponent<SpriteRenderer>(), time, parms));
 		actions.Play();

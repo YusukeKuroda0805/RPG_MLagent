@@ -77,8 +77,8 @@ public class Datas
 		character.PicturesName  = "Lilia";
 		character.HP = 300;
 		character.MaxHP = 300;
-		character.MP = 300;
-		character.MaxMP = 300;
+		character.MP = 500;
+		character.MaxMP = 500;
 
 		CharactersData[2]= character;
 
@@ -485,8 +485,8 @@ public class Datas
 		spell.Description = "Send a fireball on your ennemies";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Fire03";
-		spell.ManaAmount = 5;
-		spell.Attack = 10;
+		spell.ManaAmount = 10;
+		spell.Attack = 40;
         spell.ParticleEffect = "FireBall";
         spell.SoundEffect = "foom_0";
         SpellsData[1]= spell;
@@ -496,8 +496,8 @@ public class Datas
 		spell.Description = "Send an ice ball on your ennemies";
 		spell.AllowedCharacterType = EnumCharacterType.Wizard;
 		spell.PicturesName  = "S_Ice06";
-		spell.ManaAmount = 7;
-		spell.Attack = 15;
+		spell.ManaAmount = 10;
+		spell.Attack = 40;
         spell.ParticleEffect = "IceCold";
         spell.SoundEffect = "spell3";
         SpellsData[2]= spell;
@@ -507,8 +507,8 @@ public class Datas
         spell.Description = "A big thunder storm";
         spell.AllowedCharacterType = EnumCharacterType.Wizard;
         spell.PicturesName = "S_Thunder07";
-        spell.ManaAmount = 15;
-        spell.Attack = 150;
+        spell.ManaAmount = 30;
+        spell.Attack = 70;
         spell.ParticleEffect = "IceStars";
         spell.SoundEffect = "spell3";
         SpellsData[3] = spell;
@@ -562,7 +562,7 @@ public class Datas
         spell.Description = "Recover HP";
         spell.AllowedCharacterType = EnumCharacterType.Wizard;
         spell.PicturesName = "S_Death02";
-        spell.ManaAmount = 15;
+        spell.ManaAmount = 30;
         spell.Attack = 0;
         spell.ParticleEffect = "Magic_Aura";
         spell.SoundEffect = "spell3";

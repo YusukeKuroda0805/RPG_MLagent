@@ -295,7 +295,7 @@ PrefabInstance:
     - target: {fileID: 8213530, guid: 5b6a1dc333513d642b7fee843c593dbd, type: 3}
       propertyPath: m_audioClip
       value: 
-      objectReference: {fileID: 8300000, guid: 5b4802b8cf4a1f4478bc46613fa48a27, type: 3}
+      objectReference: {fileID: 8300000, guid: 281b48a4b1bdfec4a8617d9f34b94a0c, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b6a1dc333513d642b7fee843c593dbd, type: 3}
 --- !u!1 &129003496
@@ -386,7 +386,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 163128, guid: 94eca8c8d9884844290105885ced63c5, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 163128, guid: 94eca8c8d9884844290105885ced63c5, type: 3}
       propertyPath: m_Name
@@ -721,10 +721,17 @@ MonoBehaviour:
   MagicParticleEffect: {fileID: 105272, guid: d88638cce5be089459aa4ae8b96b74e8, type: 3}
   AIType: 0
   feedbackCountList: 
+  FelloActions: []
+  EnemyActions: []
   nowFeedbackCount: 0
   battleTurn: 1
   indexSelectAction: 0
   receptionFB: 0
+  fadeout: {fileID: 718129588}
+  goodPanel: {fileID: 5515142545606160060, guid: 696ef658fa0039943a2ae00347ca03f7,
+    type: 3}
+  gp: {fileID: 0}
+  goodse: {fileID: 0}
   timecount: 0
 --- !u!114 &375481702
 MonoBehaviour:
@@ -857,6 +864,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &718129588 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 163128, guid: 94eca8c8d9884844290105885ced63c5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1368395148}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1055480987
 GameObject:
   m_ObjectHideFlags: 0
