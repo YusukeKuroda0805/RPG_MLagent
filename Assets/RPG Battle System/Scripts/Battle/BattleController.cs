@@ -160,8 +160,7 @@ public class BattleController : MonoBehaviour
     public GameObject fadeout;
     public GameObject goodPanel;
     public GameObject gp;
-    public AudioClip goodse;
-    private bool isDefaultScale;
+    
 
 
 
@@ -210,21 +209,6 @@ public class BattleController : MonoBehaviour
         //    nowFeedbackCount++;
         //    Debug.Log("Good!");
         //}
-
-        if (Input.GetKey(KeyCode.Space))
-        {
-            if (isDefaultScale)
-            {
-                goodPanel.transform.DOScale(new Vector3(0, 0, 0), 0.2f);
-                isDefaultScale = false;
-            }
-            else if (!isDefaultScale)
-            {
-                goodPanel.transform.DOScale(new Vector3(1, 1, 1), 0.2f);
-                isDefaultScale = true;
-            }
-        }
-
 
         if (currentState == EnumBattleState.SelectingTarget)
         {
@@ -351,7 +335,7 @@ public class BattleController : MonoBehaviour
 
     }
 
-    public void PushGoodKey() //Gキーを押すことによ
+    public void PushGoodKey() //Gキーを押すことによってフィードバック
     {
         if (receptionFB)
         {
@@ -824,7 +808,7 @@ public class BattleController : MonoBehaviour
     /// <summary>
     /// Players the action.
     /// </summary>
-    public void PlayerAction() // プレイヤーの攻撃のためのメソッド!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public void PlayerAction() // プレイヤーの攻撃のためのメソッド!!!!!!!!!!!!!!!!!
 	{
 		var enemyCharacterdatas = selectedEnemy.GetComponent<EnemyCharacterDatas> ();
 		int calculatedDamage = 0;
@@ -840,7 +824,7 @@ public class BattleController : MonoBehaviour
                     actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parmsResetPlayerPosition));
                     actions.Play();
                     calculatedDamage = BattlePanels.SelectedWeapon.Attack + selectedPlayerDatas.GetAttack () - enemyCharacterdatas.Defense; 
-				    calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage); //public static float Clamp (float value, float min, float max);
+				    calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage); //与えられた最小 float 値と最大 float 値の範囲に値を制限します　public static float Clamp (float value, float min, float max);
                     enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
                     Log("主人公の攻撃!!");
                     ShowPopup ("-"+calculatedDamage.ToString (), selectedEnemy.transform.position);
@@ -855,23 +839,27 @@ public class BattleController : MonoBehaviour
 			case EnumBattleAction.Magic:
                     if(indexSelectAction <= 2) //使用された魔法がファイヤ、アイス、サンダー
                     {
+                        //ダメージ計算
                         calculatedDamage = BattlePanels.SelectedSpell.Attack + selectedPlayerDatas.GetMagic() - enemyCharacterdatas.MagicDefense;
                         calculatedDamage = Mathf.Clamp(calculatedDamage, 0, calculatedDamage);
                         enemyCharacterdatas.HP = Mathf.Clamp(enemyCharacterdatas.HP - calculatedDamage, 0, enemyCharacterdatas.HP - calculatedDamage);
                         selectedPlayerDatas.MP = Mathf.Clamp(selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount, 0, selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount);
                         Log("魔導士の" + BattlePanels.SelectedSpell.Name);
                         FelloActions.Add(BattlePanels.SelectedSpell.Name); //仲間の行った特技を記録しておく
+
+                        //ダメージを表示する処理
                         ShowPopup(calculatedDamage.ToString(), selectedEnemy.transform.localPosition);
                         ShowPopup("-" + calculatedDamage.ToString(), selectedEnemy.transform.position);
                         selectedEnemy.BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
                         selectedPlayer.BroadcastMessage("SetMPValue", selectedPlayerDatas.MaxMP <= 0 ? 0 : selectedPlayerDatas.MP * 100 / selectedPlayerDatas.MaxMP);
 
+                        //エフェクト関連の処理
                         var ennemyEffect = Resources.Load<GameObject>(Settings.PrefabsPath + BattlePanels.SelectedSpell.ParticleEffect);
                         Destroy(Instantiate(ennemyEffect, selectedEnemy.transform.localPosition, Quaternion.identity), 0.5f);
-
                         var playerEffect = Resources.Load<GameObject>(Settings.PrefabsPath + Settings.MagicAuraEffect);
                         Destroy(Instantiate(playerEffect, selectedPlayer.transform.localPosition, Quaternion.identity), 0.4f);
                         SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
+                        //アニメーション関連の処理
                         selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
                         selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
                     }
