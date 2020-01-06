@@ -18,7 +18,7 @@ public class goodfadeout : MonoBehaviour
 
     void Update()
     {
-        panel.transform.DOScale(new Vector3(13, 13, 13), 0.1f);
+        panel.transform.DOScale(new Vector3(15, 15, 15), 0.1f);
         //audioS.PlayOneShot(SE);
         Invoke("destroy", 1.0f);
     }
