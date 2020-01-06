@@ -160,7 +160,14 @@ public class BattleController : MonoBehaviour
     public GameObject fadeout;
     public GameObject goodPanel;
     public GameObject gp;
-    
+
+    // プレイヤーの攻撃力と防御力の補正値
+    public float playerAttackCorrection = 1; 
+    public float playerDefenseCorrection = 1;
+    public float enemyAttackCorrection = 1;
+    public float enemyDefenseCorrection = 1;
+
+
 
 
 
@@ -375,14 +382,17 @@ public class BattleController : MonoBehaviour
         {
             case 1:
                 Debug.Log("攻撃重視");
+                AIType = OperationType.Attack;
                 break;
 
             case 2:
                 Debug.Log("バランス重視");
+                AIType = OperationType.balance;
                 break;
 
             case 3:
                 Debug.Log("サポート重視");
+                AIType = OperationType.support;
                 break;
 
             default:
@@ -402,11 +412,11 @@ public class BattleController : MonoBehaviour
                 break;
 
             case OperationType.balance:
-                value = 1;//UnityEngine.Random.Range(0, 8);//
+                value = UnityEngine.Random.Range(3, 6);//
                 break;
 
             case OperationType.support:
-                value = 2;//UnityEngine.Random.Range(0, 8);//
+                value = 7;//UnityEngine.Random.Range(0, 8);//
                 break;
 
             default:
@@ -823,7 +833,9 @@ public class BattleController : MonoBehaviour
                     actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parms));
                     actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parmsResetPlayerPosition));
                     actions.Play();
-                    calculatedDamage = BattlePanels.SelectedWeapon.Attack + selectedPlayerDatas.GetAttack () - enemyCharacterdatas.Defense; 
+
+                    //主人公のダメージ計算
+                    calculatedDamage =Mathf.CeilToInt((BattlePanels.SelectedWeapon.Attack + selectedPlayerDatas.GetAttack ())* playerAttackCorrection - (enemyCharacterdatas.Defense * enemyDefenseCorrection)); //小数点切り捨て
 				    calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage); //与えられた最小 float 値と最大 float 値の範囲に値を制限します　public static float Clamp (float value, float min, float max);
                     enemyCharacterdatas.HP =Mathf.Clamp ( enemyCharacterdatas.HP - calculatedDamage, 0 , enemyCharacterdatas.HP - calculatedDamage);
                     Log("主人公の攻撃!!");
@@ -837,6 +849,7 @@ public class BattleController : MonoBehaviour
 					 break;
                     // まほうを使うとき
 			case EnumBattleAction.Magic:
+
                     if(indexSelectAction <= 2) //使用された魔法がファイヤ、アイス、サンダー
                     {
                         //ダメージ計算
@@ -859,16 +872,53 @@ public class BattleController : MonoBehaviour
                         var playerEffect = Resources.Load<GameObject>(Settings.PrefabsPath + Settings.MagicAuraEffect);
                         Destroy(Instantiate(playerEffect, selectedPlayer.transform.localPosition, Quaternion.identity), 0.4f);
                         SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
+
                         //アニメーション関連の処理
                         selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
                         selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
                     }
-                    else if(3 <= indexSelectAction && indexSelectAction <= 7)//使用魔法がバフ、デバフ
+                    else if(3 <= indexSelectAction && indexSelectAction <= 7)//使用魔法がバフ、デバフ,回復
                     {
-                        Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        switch (indexSelectAction)
+                        {
+                            // 攻撃アップ
+                            case 3:
+                                playerAttackCorrection  *= 1.5f;
+                                break;
+                            // 防御アップ
+                            case 4:
+                                playerDefenseCorrection *= 1.5f; 
+                                break;
+                            // 攻撃デバフ
+                            case 5:
+                                enemyAttackCorrection *= 0.8f;
+                                selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
+                                break;
+                            // 防御デバフ
+                            case 6:
+                                enemyDefenseCorrection *= 0.8f;
+                                selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
+                                break;
+                            // 回復
+                            case 7:
+                                BattlePanels.SelectedCharacter.HP += 100;
+                                Main.CharacterList[0].HP += 100;
+                                break;
+                            default:
+                                break;
+                        }
 
+                        Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        FelloActions.Add(BattlePanels.SelectedSpell.Name); //仲間の行った特技を記録しておく
+
+                        //エフェクト関連の処理
+                        var ennemyEffect = Resources.Load<GameObject>(Settings.PrefabsPath + BattlePanels.SelectedSpell.ParticleEffect);
+                        Destroy(Instantiate(ennemyEffect, selectedEnemy.transform.localPosition, Quaternion.identity), 0.5f);
+                        var playerEffect = Resources.Load<GameObject>(Settings.PrefabsPath + Settings.MagicAuraEffect);
+                        Destroy(Instantiate(playerEffect, selectedPlayer.transform.localPosition, Quaternion.identity), 0.4f);
+                        SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
+                        //アニメーション関連の処理
                         selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
-                        selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
                     }
 				
                     break;
@@ -923,7 +973,7 @@ public class BattleController : MonoBehaviour
 	if (enemyCharacterdatas != null && selectedPlayerDatas != null) {
 			switch (battlAction) {
 			case EnumBattleAction.Weapon:
-                calculatedDamage = enemyCharacterdatas.Attack - playerToAttackDatas.Defense; 
+                calculatedDamage = Mathf.CeilToInt((enemyCharacterdatas.Attack * enemyAttackCorrection) - (playerToAttackDatas.Defense * playerDefenseCorrection)); 
 				calculatedDamage = Mathf.Clamp (calculatedDamage, 0, calculatedDamage);
 				playerToAttackDatas.HP = Mathf.Clamp (playerToAttackDatas.HP - calculatedDamage , 0 ,playerToAttackDatas.HP - calculatedDamage);
                     //与えたダメージ量をホップアップ

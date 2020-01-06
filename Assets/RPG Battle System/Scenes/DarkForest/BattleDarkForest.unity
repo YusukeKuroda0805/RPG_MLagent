@@ -386,7 +386,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 163128, guid: 94eca8c8d9884844290105885ced63c5, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 163128, guid: 94eca8c8d9884844290105885ced63c5, type: 3}
       propertyPath: m_Name
@@ -731,7 +731,10 @@ MonoBehaviour:
   goodPanel: {fileID: 5515142545606160060, guid: 696ef658fa0039943a2ae00347ca03f7,
     type: 3}
   gp: {fileID: 0}
-  goodse: {fileID: 0}
+  playerAttackCorrection: 1
+  playerDefenseCorrection: 1
+  enemyAttackCorrection: 1
+  enemyDefenseCorrection: 1
   timecount: 0
 --- !u!114 &375481702
 MonoBehaviour:
