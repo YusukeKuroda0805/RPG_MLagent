@@ -19,12 +19,18 @@ public class ExportCSV : MonoBehaviour
         
     }
 
-    public void OutputCSV(int clearTurn, List<string>felloActions , List<int> fbCounts, List<string>enemyActions)
+    public void OutputCSV(int clearTurn, List<string>felloActions , List<int> fbCounts, List<string>enemyActions ,string AITYPE)
     {
         // ファイル書き出し
         // 現在のフォルダにsaveData.csvを出力する(決まった場所に出力したい場合は絶対パスを指定してください)
         // 引数説明：第1引数→ファイル出力先, 第2引数→ファイルに追記(true)or上書き(false), 第3引数→エンコード
         StreamWriter sw = new StreamWriter(@"RPGLogData.csv", false, Encoding.GetEncoding("Shift_JIS"));
+
+
+        // ヘッダー出力
+        string[] ds1 = { "デフォルトAIの種類",AITYPE};
+        string ds2 = string.Join(",", ds1);
+        sw.WriteLine(ds2);
 
         // ヘッダー出力
         string[] s1 = { "ターン", "仲間の行動", "フィードバック回数", "ボスの行動" };

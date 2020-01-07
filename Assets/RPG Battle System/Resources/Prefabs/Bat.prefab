@@ -146,14 +146,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90d9e639aa77e6048a73eeb33d9b49c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HP: 50
+  HP: 500
   MP: 20
   Attack: 20
   Defense: 20
   Magic: 0
   MagicDefense: 0
   Level: 1
-  MaxHP: 50
+  MaxHP: 500
   MaxMP: 20
   XP: 100
 --- !u!114 &114826745975247664

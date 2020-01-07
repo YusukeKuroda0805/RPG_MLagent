@@ -149,6 +149,7 @@ public class BattleController : MonoBehaviour
         support,
     }
     public OperationType AIType;
+    public string AItypeText;
     private int count = 0;//これで行動順が主人公か仲間かを識別している
     public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
     public List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
@@ -314,7 +315,7 @@ public class BattleController : MonoBehaviour
             if (battleTurn > FelloActions.Count) FelloActions.Add("主人公のアクションで終了");
             EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
             feedbackCountList.Add(nowFeedbackCount);
-            GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions);
+            GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions,AItypeText);
         }
         else if (currentState == EnumBattleState.EnemyWon)
         {
@@ -374,16 +375,19 @@ public class BattleController : MonoBehaviour
             case 1:
                 Debug.Log("攻撃重視");
                 AIType = OperationType.Attack;
+                AItypeText = "攻撃重視";
                 break;
 
             case 2:
                 Debug.Log("バランス重視");
                 AIType = OperationType.balance;
+                AItypeText = "バランス重視";
                 break;
 
             case 3:
                 Debug.Log("サポート重視");
                 AIType = OperationType.support;
+                AItypeText = "サポート重視";
                 break;
 
             default:
@@ -407,7 +411,7 @@ public class BattleController : MonoBehaviour
                 break;
 
             case OperationType.support:
-                value = UnityEngine.Random.Range(5, 8);//
+                value = UnityEngine.Random.Range(3, 8);//
                 break;
 
             default:
@@ -416,7 +420,7 @@ public class BattleController : MonoBehaviour
         //int value = UnityEngine.Random.Range(0, 8);//
         indexSelectAction = value;
         // 敵の行動パターンを抽選
-        indexSelectEnemyAction = UnityEngine.Random.Range(0, 1000);
+        indexSelectEnemyAction = UnityEngine.Random.Range(0, 100);
         //if(indexSelectEnemyAction > 89 && )
         //{
 
