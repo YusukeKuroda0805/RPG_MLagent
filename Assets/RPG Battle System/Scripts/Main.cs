@@ -168,7 +168,6 @@ public class Main : MonoBehaviour,ISerializable
     /// </summary>
     public void InitializeDatas()
 	{
-        
 		CharacterList.Add (Datas.CharactersData [1]);//sam(主人公)
 		CharacterList.Add (Datas.CharactersData [2]);//lilia(仲間)
 

@@ -6,6 +6,8 @@ using System.IO;
 
 public class ExportCSV : MonoBehaviour
 {
+
+    private int BattleCount = 1;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,7 +30,7 @@ public class ExportCSV : MonoBehaviour
 
 
         // ヘッダー出力
-        string[] ds1 = { "デフォルトAIの種類",AITYPE};
+        string[] ds1 = {"戦闘" + BattleCount.ToString() + "回目","デフォルトAIの種類",AITYPE};
         string ds2 = string.Join(",", ds1);
         sw.WriteLine(ds2);
 

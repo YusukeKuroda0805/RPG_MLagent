@@ -222,8 +222,6 @@ public class BattleController : MonoBehaviour
             //    RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             //    if (hit.transform != null)
             //    {
-
-
             //        bool foundEnemy = false;
             //        foreach (var x in generatedEnemyList)
             //        {
@@ -284,13 +282,14 @@ public class BattleController : MonoBehaviour
                 //MagicAction();
                 AcceptDecision();
                 count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                currentState = EnumBattleState.None;
             }
         }
         else if (currentState == EnumBattleState.PlayerWon)
         {
             Log(GameTexts.PlayerWon);
-            HideTargetSelector();
-            HideMenu();
+            //HideTargetSelector();
+            //HideMenu();
             //int totalXP = 0;
             ////経験値の処理
             //foreach (var x in generatedEnemyList)
@@ -308,9 +307,13 @@ public class BattleController : MonoBehaviour
             var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + "次の戦闘を行う";
             ShowDropMenu(textTodisplay);
             currentState = EnumBattleState.EndBattle;
-            var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
-            if (go) go.GetComponent<AudioSource>().Stop();
-            SoundManager.WinningMusic();
+
+
+
+
+            //var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
+            //if (go) go.GetComponent<AudioSource>().Stop();
+            //SoundManager.WinningMusic();
 
             if (battleTurn > FelloActions.Count) FelloActions.Add("主人公のアクションで終了");
             EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
@@ -575,6 +578,12 @@ public class BattleController : MonoBehaviour
 
     }
 
+    IEnumerator NextSequenceWait()
+    {
+        yield return new WaitForSeconds(3.0f);
+        NextBattleSequence();
+    }
+
     /// <summary>
     /// Nexts the battle sequence.
     /// </summary>
@@ -651,8 +660,7 @@ public class BattleController : MonoBehaviour
         SelectTheFirstEnemy();
         HideMenu();
         AcceptDecision();
-        //ShowDecision();
-
+      
     }
 
 
@@ -845,8 +853,8 @@ public class BattleController : MonoBehaviour
                     Holoville.HOTween.Sequence actions = new Holoville.HOTween.Sequence(new SequenceParms());
                     TweenParms parms = new TweenParms().Prop("position", selectedEnemy.transform.position - new Vector3(SpaceBetweenCharacterAndEnemy, 0, 0)).Ease(EaseType.EaseOutQuart);
                     TweenParms parmsResetPlayerPosition = new TweenParms().Prop("position", selectedPlayer.transform.position).Ease(EaseType.EaseOutQuart);
-                    actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parms));
-                    actions.Append(HOTween.To(selectedPlayer.transform, 1.0f, parmsResetPlayerPosition));
+                    actions.Append(HOTween.To(selectedPlayer.transform, 0.5f, parms));
+                    actions.Append(HOTween.To(selectedPlayer.transform, 0.5f, parmsResetPlayerPosition));
                     actions.Play();
 
                     //主人公のダメージ計算
@@ -973,7 +981,9 @@ public class BattleController : MonoBehaviour
         //selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
         selectedEnemy = null;
         //NextBattleSequence();
-        Invoke("NextBattleSequence", 2.0f);
+        //Invoke("NextBattleSequence", 2.0f);
+        StartCoroutine("NextSequenceWait");
+
 
         //NextBattleSequence();
     }
