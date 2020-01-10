@@ -258,6 +258,18 @@ public class BattlePanels : MonoBehaviour {
 
 	}
 
+    public void HideDropMenu()
+    {
+        float time = 0.75f;
+        DropMenu.SetActive(false);
+        Sequence actions = new Sequence(new SequenceParms());
+        TweenParms parms = new TweenParms().Prop("localScale", DropMenu.transform.localScale / 2f).Ease(EaseType.EaseOutElastic);
+
+        actions.Append(HOTween.To(DropMenu.transform, time, parms));
+
+        actions.Play();
+    }
+
     /// <summary>
     /// Hides the decision.
     /// </summary>
@@ -280,7 +292,7 @@ public class BattlePanels : MonoBehaviour {
     /// </summary>
     public void HideActionMenu()
 	{
-		ActionMenu.SetActive (false); // 攻撃、魔法、道具から選ぶ　〇〇Battles.cs のToggleSelectAction
+		ActionMenu.SetActive (true); // 攻撃、魔法、道具から選ぶ　〇〇Battles.cs のToggleSelectAction
 	}
 
     /// <summary>
@@ -323,21 +335,6 @@ public class BattlePanels : MonoBehaviour {
 		
 
 	}
-
-
-    public void Good() //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    {
-        if (logicGameObject)
-            logicGameObject.BroadcastMessage("FeedBackGood");
-
-    }
-
-    public void Bad() //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    {
-        if (logicGameObject)
-            logicGameObject.BroadcastMessage("FeedBackBad");
-
-    }
 
 
     /// <summary>
@@ -394,7 +391,7 @@ public class BattlePanels : MonoBehaviour {
     public　void GameRestart()
     {
         if (logicGameObject)
-            logicGameObject.BroadcastMessage("");
+            logicGameObject.BroadcastMessage("GameRestart");
     }
 
 }

@@ -162,6 +162,7 @@ public class BattleController : MonoBehaviour
     public GameObject fadeout;
     public GameObject goodPanel;
     public GameObject gp;
+    public GameObject BossEnemy;
 
     // プレイヤーの攻撃力と防御力の補正値
     public float playerAttackCorrection = 1;
@@ -319,6 +320,8 @@ public class BattleController : MonoBehaviour
             EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
             feedbackCountList.Add(nowFeedbackCount);
             GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions,AItypeText);
+            Invoke("Pause", 1.0f);
+            
         }
         else if (currentState == EnumBattleState.EnemyWon)
         {
@@ -335,6 +338,28 @@ public class BattleController : MonoBehaviour
             SoundManager.GameOverMusic();
         }
 
+    }
+
+    public void GameRestart()//2戦目、3戦目のための処理!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    {
+        Main.PauseGame(false);
+
+        //敵を生成
+        //GenerateEnnemies();
+        enemyReGenerate();
+        
+        //
+        GenerateTurnByTurnSequence();//ターンごとのシーケンスを生成
+        sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();// GetEnumerator コレクション内全ての要素を一回ずつ呼び出す
+        NextBattleSequence();
+        //turnByTurnSequenceList.RemoveAll(r => r.First == EnumPlayerOrEnemy.Player);
+        HideDropMenu();
+        count = 0;
+        battleTurn = 1;
+        receptionFB = false;
+        //GenerateEnnemies();
+        //currentState = EnumBattleState.PlayerTurn;
+        
     }
 
     public void PushGoodKey() //Gキーを押すことによってフィードバック
@@ -369,6 +394,11 @@ public class BattleController : MonoBehaviour
         Debug.Log(battleTurn + "ターン目のフィードバックは" + feedbackCountList[battleTurn - 1] + "回");
         nowFeedbackCount = 0;
         battleTurn++;
+    }
+
+    public void Pause()
+    {
+        Main.PauseGame(true);
     }
 
     public void defaultAI(int index)
@@ -504,6 +534,18 @@ public class BattleController : MonoBehaviour
 
     }
 
+    void enemyReGenerate()
+    {
+         BossEnemy.SetActive(true);
+
+        var EnemyDatas = BossEnemy.GetComponent<EnemyCharacterDatas>();
+        EnemyDatas.HP = EnemyDatas.MaxHP;
+        EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
+        EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
+        //generatedEnemyList[0].BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
+
+    }
+
     /// <summary>
     /// Positions the players.
     /// </summary>
@@ -591,11 +633,12 @@ public class BattleController : MonoBehaviour
     {
         //GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions);
         receptionFB = true;
-        var x = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Enemy).Count();
-        var y = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player).Count();
+        var x = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Enemy).Count();// 敵
+        var y = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player).Count();// 味方
         if (x <= 0)
         {
             currentState = EnumBattleState.PlayerWon;
+            //turnByTurnSequenceList.RemoveAll(w => w.First == EnumPlayerOrEnemy.Enemy);
             return;
         }
         else if (y <= 0)
@@ -1084,7 +1127,7 @@ public class BattleController : MonoBehaviour
                         Log("敵の回復");
                         EnemyActions.Add("回復");
 
-                        ShowPopup("+100", generatedEnemyList[0].transform.position);
+                        ShowPopup("+50", generatedEnemyList[0].transform.position);
                         go.SendMessage("Animate", EnumBattleState.Idle.ToString());
 
                     }
@@ -1110,12 +1153,13 @@ public class BattleController : MonoBehaviour
     /// <param name="go">The go.</param>
     public void KillCharacter(GameObject go)
     {
-        float time = 0.75f;
-        Holoville.HOTween.Sequence actions = new Holoville.HOTween.Sequence(new SequenceParms());
-        TweenParms parms = new TweenParms().Prop("color", new Color(1.0f, 1.0f, 1.0f, 0.0f)).Ease(EaseType.EaseOutQuart);
-        actions.Append(HOTween.To(go.GetComponent<SpriteRenderer>(), time, parms));
-        actions.Play();
+        //float time = 0.75f;
+        //Holoville.HOTween.Sequence actions = new Holoville.HOTween.Sequence(new SequenceParms());
+        //TweenParms parms = new TweenParms().Prop("color", new Color(1.0f, 1.0f, 1.0f, 0.0f)).Ease(EaseType.EaseOutQuart);
+        //actions.Append(HOTween.To(go.GetComponent<SpriteRenderer>(), time, parms));
+        //actions.Play();
         go.SetActive(false);
+        BossEnemy = go;
         turnByTurnSequenceList.RemoveAll(r => r.Second.GetInstanceID() == go.GetInstanceID());
         var id = sequenceEnumerator.Current.Second.GetInstanceID();
         sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();
@@ -1172,5 +1216,13 @@ public class BattleController : MonoBehaviour
 
     }
 
+    public void HideDropMenu()
+    {
+        if (uiGameObject)
+        {
+            uiGameObject.BroadcastMessage("HideDropMenu");
+        }
+
+    }
 
 }

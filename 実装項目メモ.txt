@@ -10,9 +10,18 @@
 ☆連戦時（2回目、3回目）に初期化、再配置するべきデータ
 count = 0
 feedbackCountList
+FelloAction
+EnemyActions
+nowFeedbackCount = 0
+battleTurn = 1
 
+indexSelectAction
+indexSelectEnemyAction
+receptionFB = false
 
-
+☆戦闘後、消えてしまっているデータ
+敵
+「たたかう」等のUI
 
 
 ★リアルタイムフィードバック機能の追加 完了！！
