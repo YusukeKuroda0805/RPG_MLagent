@@ -89,7 +89,7 @@ public class ItemsBattle : MonoBehaviour {
 		Contract.Requires<MissingComponentException> (toggle != null);
         SoundManager.UISound();
         if (toggle.isOn) {
-//			useActionToggle.Select ();
+            //useActionToggle.Select ();
 			//equipActionToggle.isOn = true;
 			toggle.group.NotifyToggleOn(toggle);
 			ColorBlock cb = toggle.colors;

@@ -292,7 +292,7 @@ public class BattlePanels : MonoBehaviour {
     /// </summary>
     public void HideActionMenu()
 	{
-		ActionMenu.SetActive (true); // 攻撃、魔法、道具から選ぶ　〇〇Battles.cs のToggleSelectAction
+		ActionMenu.SetActive (false); // 攻撃、魔法、道具から選ぶ　〇〇Battles.cs のToggleSelectAction
 	}
 
     /// <summary>

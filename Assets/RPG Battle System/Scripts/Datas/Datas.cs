@@ -77,8 +77,8 @@ public class Datas
 		character.PicturesName  = "Lilia";
 		character.HP = 300;
 		character.MaxHP = 300;
-		character.MP = 500;
-		character.MaxMP = 500;
+		character.MP = 100;
+		character.MaxMP = 100;
 
 		CharactersData[2]= character;
 

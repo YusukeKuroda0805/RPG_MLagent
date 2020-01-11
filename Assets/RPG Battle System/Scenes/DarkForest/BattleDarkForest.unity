@@ -706,7 +706,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PossibleEnnemies:
   - {fileID: 1128124928530548, guid: 5cf29b2085b035c49886163e72db1f04, type: 3}
-  - {fileID: 1102979040690014, guid: 868b9b6306c1ce54b97f9e33cf08d42a, type: 3}
   NumberOfEnemyToGenerate: 1
   SpaceBetweenCharacters: 8
   SpaceBetweenCharacterAndEnemy: 3
@@ -720,22 +719,24 @@ MonoBehaviour:
     type: 3}
   MagicParticleEffect: {fileID: 105272, guid: d88638cce5be089459aa4ae8b96b74e8, type: 3}
   AIType: 0
+  AItypeText: 
   feedbackCountList: 
   FelloActions: []
   EnemyActions: []
   nowFeedbackCount: 0
   battleTurn: 1
   indexSelectAction: 0
+  indexSelectEnemyAction: 0
   receptionFB: 0
   fadeout: {fileID: 718129588}
   goodPanel: {fileID: 5515142545606160060, guid: 696ef658fa0039943a2ae00347ca03f7,
     type: 3}
   gp: {fileID: 0}
+  BossEnemy: {fileID: 0}
   playerAttackCorrection: 1
   playerDefenseCorrection: 1
   enemyAttackCorrection: 1
   enemyDefenseCorrection: 1
-  timecount: 0
 --- !u!114 &375481702
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -150,7 +150,8 @@ public class BattleController : MonoBehaviour
     }
     public OperationType AIType;
     public string AItypeText;
-    private int count = 0;//これで行動順が主人公か仲間かを識別している
+    public int count = 0;//これで行動順が主人公か仲間かを識別している
+    //public int SeqCount = 0;
     public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
     public List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
     public List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
@@ -169,10 +170,6 @@ public class BattleController : MonoBehaviour
     public float playerDefenseCorrection = 1;
     public float enemyAttackCorrection = 1;
     public float enemyDefenseCorrection = 1;
-
-
-
-
 
     void Awake()
     {
@@ -193,7 +190,6 @@ public class BattleController : MonoBehaviour
         GenerateEnnemies();
         //プレイヤーの位置を決める
         PositionPlayers();
-        //
         GenerateTurnByTurnSequence();//ターンごとのシーケンスを生成
         sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();// GetEnumerator コレクション内全ての要素を一回ずつ呼び出す
         NextBattleSequence();
@@ -257,7 +253,6 @@ public class BattleController : MonoBehaviour
             PositionTargetSelector(playerTargetedByEnemy.Second);
             EnemyAttack(playerTargetedByEnemy.Second, playerTargetedByEnemyDatas);
             //PositionTargetSelector(playerTargetedByEnemy.Second);
-            //Invoke("NextBattleSequence", 2.0f);
         }
         else if (currentState == EnumBattleState.PlayerTurn)
         {
@@ -269,7 +264,7 @@ public class BattleController : MonoBehaviour
                 Debug.Log("主人公のターン");
                 receptionFB = false;
                 //Debug.Log(selectedPlayerDatas);
-                count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //count++;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 ShowMenu();//メニューを表示する
                 currentState = EnumBattleState.None;
             }
@@ -308,10 +303,6 @@ public class BattleController : MonoBehaviour
             var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + "次の戦闘を行う";
             ShowDropMenu(textTodisplay);
             currentState = EnumBattleState.EndBattle;
-
-
-
-
             //var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
             //if (go) go.GetComponent<AudioSource>().Stop();
             //SoundManager.WinningMusic();
@@ -319,6 +310,7 @@ public class BattleController : MonoBehaviour
             if (battleTurn > FelloActions.Count) FelloActions.Add("主人公のアクションで終了");
             EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
             feedbackCountList.Add(nowFeedbackCount);
+            nowFeedbackCount = 0;
             GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions,AItypeText);
             Invoke("Pause", 1.0f);
             
@@ -342,25 +334,35 @@ public class BattleController : MonoBehaviour
 
     public void GameRestart()//2戦目、3戦目のための処理!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
+        //画面を一度ポーズする
         Main.PauseGame(false);
-
-        //敵を生成
-        //GenerateEnnemies();
+        //敵を再びアクティブにし、全快状態にする
         enemyReGenerate();
-        
-        //
+        //ターンの順番等を初期化
         GenerateTurnByTurnSequence();//ターンごとのシーケンスを生成
         sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();// GetEnumerator コレクション内全ての要素を一回ずつ呼び出す
         NextBattleSequence();
-        //turnByTurnSequenceList.RemoveAll(r => r.First == EnumPlayerOrEnemy.Player);
         HideDropMenu();
+
+        var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
+        PlayerDatas.HP = PlayerDatas.MaxHP;
+        turnByTurnSequenceList[0].Second.BroadcastMessage("SetHPValue", PlayerDatas.MaxHP <= 0 ? 0 : PlayerDatas.HP * 100 / PlayerDatas.MaxHP);
+
+        var FriendDatas = GetCharacterDatas(turnByTurnSequenceList[1].Second.name);
+        FriendDatas.MP = FriendDatas.MaxMP;
+        turnByTurnSequenceList[1].Second.BroadcastMessage("SetMPValue", FriendDatas.MaxMP <= 0 ? 0 : FriendDatas.MP * 100 / FriendDatas.MaxMP);
+
+
+
+        //様々なデータの初期化
         count = 0;
         battleTurn = 1;
         receptionFB = false;
-        //GenerateEnnemies();
-        //currentState = EnumBattleState.PlayerTurn;
-        
-    }
+        playerAttackCorrection = 1;
+        playerDefenseCorrection = 1;
+        enemyAttackCorrection = 1;
+        enemyDefenseCorrection = 1;
+}
 
     public void PushGoodKey() //Gキーを押すことによってフィードバック
     {
@@ -382,7 +384,6 @@ public class BattleController : MonoBehaviour
                 SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
                 gp = goodprefab;
             }
-
             Debug.Log("Good!");
         }
     }
@@ -541,7 +542,9 @@ public class BattleController : MonoBehaviour
         var EnemyDatas = BossEnemy.GetComponent<EnemyCharacterDatas>();
         EnemyDatas.HP = EnemyDatas.MaxHP;
         EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
-        EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
+
+        //var PlayerDatas = turnByTurnSequenceList[0].
+        //EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
         //generatedEnemyList[0].BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
 
     }
@@ -633,15 +636,15 @@ public class BattleController : MonoBehaviour
     {
         //GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions);
         receptionFB = true;
-        var x = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Enemy).Count();// 敵
-        var y = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player).Count();// 味方
-        if (x <= 0)
+        var x = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Enemy).Count();// 敵    : 値は1
+        var y = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player).Count();// 味方 : 値は2
+        if (x <= 0) //　敵が全滅したとき
         {
             currentState = EnumBattleState.PlayerWon;
             //turnByTurnSequenceList.RemoveAll(w => w.First == EnumPlayerOrEnemy.Enemy);
             return;
         }
-        else if (y <= 0)
+        else if (y <= 0) // 味方が全滅したとき
         {
             currentState = EnumBattleState.EnemyWon;
             return;
@@ -650,12 +653,10 @@ public class BattleController : MonoBehaviour
 
         if (sequenceEnumerator.MoveNext())
         {
-            PositionSelector(sequenceEnumerator.Current.Second);
+            PositionSelector(sequenceEnumerator.Current.Second);　//current : 現在位置にあるコレクション内の要素
             if (sequenceEnumerator.Current.First == EnumPlayerOrEnemy.Player)
             {
-
                 currentState = EnumBattleState.PlayerTurn;
-
                 selectedPlayer = sequenceEnumerator.Current.Second;
                 selectedPlayerDatas = GetCharacterDatas(selectedPlayer.name);
                 BattlePanels.SelectedCharacter = selectedPlayerDatas;
@@ -701,8 +702,12 @@ public class BattleController : MonoBehaviour
         currentState = EnumBattleState.PlayerTurn;
         battlAction = EnumBattleAction.Weapon;
         SelectTheFirstEnemy();
+
+        //BattleUIを隠すためのメソッド
+
         HideMenu();
         AcceptDecision();
+        count++;
       
     }
 
@@ -949,20 +954,20 @@ public class BattleController : MonoBehaviour
                         {
                             // 攻撃アップ
                             case 3:
-                                playerAttackCorrection *= 1.5f;
+                                playerAttackCorrection *= 1.3f;
                                 break;
                             // 防御アップ
                             case 4:
-                                playerDefenseCorrection *= 1.5f;
+                                playerDefenseCorrection *= 1.3f;
                                 break;
                             // 攻撃デバフ
                             case 5:
-                                enemyAttackCorrection *= 0.8f;
+                                enemyAttackCorrection /= 1.3f;
                                 selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
                                 break;
                             // 防御デバフ
                             case 6:
-                                enemyDefenseCorrection *= 0.8f;
+                                enemyDefenseCorrection /= 1.3f;
                                 selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
                                 break;
                             // 回復
@@ -980,7 +985,7 @@ public class BattleController : MonoBehaviour
                                     PlayerDatas.HP += 50;
                                 }
                                 
-                                turnByTurnSequenceList[0].Second.BroadcastMessage("SetHPValue", PlayerDatas.MaxHP <= 0 ? 0 : PlayerDatas.HP * 100 / PlayerDatas.MaxHP);
+                                //turnByTurnSequenceList[0].Second.BroadcastMessage("SetHPValue", PlayerDatas.MaxHP <= 0 ? 0 : PlayerDatas.HP * 100 / PlayerDatas.MaxHP);
                                 turnByTurnSequenceList[0].Second.BroadcastMessage("SetHPValue", PlayerDatas.MaxHP <= 0 ? 0 : PlayerDatas.HP * 100 /PlayerDatas.MaxHP);
                                 break;
                             default:
@@ -1026,7 +1031,7 @@ public class BattleController : MonoBehaviour
         //NextBattleSequence();
         //Invoke("NextBattleSequence", 2.0f);
         StartCoroutine("NextSequenceWait");
-
+        
 
         //NextBattleSequence();
     }
@@ -1142,8 +1147,10 @@ public class BattleController : MonoBehaviour
         selectedEnemy = null;
         selectedPlayerDatas = null;
         //NextBattleSequence();
-        Invoke("NextBattleSequence", 1.5f);
-        Invoke("AggregateFB", 1.5f);
+        //Invoke("NextBattleSequence", 1.5f);
+        currentState = EnumBattleState.None;
+        StartCoroutine("NextSequenceWait");
+        Invoke("AggregateFB", 3.0f);
 
     }
 
