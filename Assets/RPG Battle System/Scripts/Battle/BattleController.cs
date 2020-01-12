@@ -149,27 +149,62 @@ public class BattleController : MonoBehaviour
         support,
     }
     public OperationType AIType;
-    public string AItypeText;
-    public int count = 0;//これで行動順が主人公か仲間かを識別している
-    //public int SeqCount = 0;
-    public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
-    public List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
-    public List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
-    public int nowFeedbackCount = 0; //フィードバックの回数を計測
-    public int battleTurn = 1;
-    public int indexSelectAction = 0;
-    public int indexSelectEnemyAction = 0;
-    public bool receptionFB = false; //フィードバックを受け付けるかどうか
+    private string AItypeText;
+    int ActionTotalCount;
+    private int count = 0;//これで行動順が主人公か仲間かを識別している
+
+    //0:炎魔法
+    //1:氷魔法
+    //2:雷魔法
+    //3:主人公への攻撃バフ
+    //4:主人公への防御アップ
+    //5:敵への攻撃デバフ
+    //6:敵への防御デバフ
+    //7:回復
+
+    [Header("攻撃タイプのデフォルト値")]
+    public int[] AttackType
+        = {25, 25, 25, 5, 5, 5, 5, 5};
+
+    [Header("バランスタイプのデフォルト値")]
+    public int[] BalanceType
+        = { 10, 10, 10, 10, 10, 10, 10, 10};
+
+    [Header("サポートタイプのデフォルト値")]
+    public int[] SupportType
+        = { 5, 5, 5, 15, 15, 15, 15, 25 };
+
+
+    [Header("各属性の繰り出す割合")]
+    public int Fire_rate = 10;
+    public int Ice_rate = 10;
+    public int Thunder_rate = 10;
+    public int Attack_rate = 10;
+    public int Defense_rate = 10;
+    public int eAttark_rate = 10;
+    public int eDefense_rate = 10;
+    public int Heal_rate = 10;
+
+    [Header("プレイヤーの攻撃力と防御力の補正値")]
+    public float playerAttackCorrection = 1;
+    public float playerDefenseCorrection = 1;
+    public float enemyAttackCorrection = 1;
+    public float enemyDefenseCorrection = 1;
+
+    private List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
+    private List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
+    private List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
+    private int nowFeedbackCount = 0; //フィードバックの回数を計測
+    private int battleTurn = 1;
+    private int indexSelectAction = 0;
+    private int indexSelectEnemyAction = 0;
+    private bool receptionFB = false; //フィードバックを受け付けるかどうか
     public GameObject fadeout;
     public GameObject goodPanel;
     public GameObject gp;
     public GameObject BossEnemy;
 
-    // プレイヤーの攻撃力と防御力の補正値
-    public float playerAttackCorrection = 1;
-    public float playerDefenseCorrection = 1;
-    public float enemyAttackCorrection = 1;
-    public float enemyDefenseCorrection = 1;
+    //[Header("各魔法の行動を行う比率")]
 
     void Awake()
     {
@@ -358,10 +393,16 @@ public class BattleController : MonoBehaviour
         count = 0;
         battleTurn = 1;
         receptionFB = false;
+        //バフの効果時間を
         playerAttackCorrection = 1;
         playerDefenseCorrection = 1;
         enemyAttackCorrection = 1;
         enemyDefenseCorrection = 1;
+
+        feedbackCountList.Clear();
+        FelloActions.Clear();
+        EnemyActions.Clear();
+
 }
 
     public void PushGoodKey() //Gキーを押すことによってフィードバック
@@ -410,18 +451,48 @@ public class BattleController : MonoBehaviour
                 Debug.Log("攻撃重視");
                 AIType = OperationType.Attack;
                 AItypeText = "攻撃重視";
+
+                //行動傾向を決定
+                Fire_rate = AttackType[0];
+                Ice_rate = AttackType[1];
+                Thunder_rate = AttackType[2];
+                Attack_rate = AttackType[3];
+                Defense_rate = AttackType[4];
+                eAttark_rate = AttackType[5];
+                eDefense_rate = AttackType[6];
+                Heal_rate = AttackType[7];
                 break;
 
             case 2:
                 Debug.Log("バランス重視");
                 AIType = OperationType.balance;
                 AItypeText = "バランス重視";
+
+                //行動傾向を決定
+                Fire_rate = BalanceType[0];
+                Ice_rate = BalanceType[1];
+                Thunder_rate = BalanceType[2];
+                Attack_rate = BalanceType[3];
+                Defense_rate = BalanceType[4];
+                eAttark_rate = BalanceType[5];
+                eDefense_rate = BalanceType[6];
+                Heal_rate = BalanceType[7];
                 break;
 
             case 3:
                 Debug.Log("サポート重視");
                 AIType = OperationType.support;
                 AItypeText = "サポート重視";
+
+                //行動傾向を決定
+                Fire_rate = SupportType[0];
+                Ice_rate = SupportType[1];
+                Thunder_rate = SupportType[2];
+                Attack_rate = SupportType[3];
+                Defense_rate = SupportType[4];
+                eAttark_rate = SupportType[5];
+                eDefense_rate = SupportType[6];
+                Heal_rate = SupportType[7];
                 break;
 
             default:
@@ -432,27 +503,86 @@ public class BattleController : MonoBehaviour
     //プレイヤーの行動パターンを抽選（ついでに敵の行動パターンも抽選）
     public void DrawAction()
     {
-        int value = 0;
+        
+        ActionTotalCount = Fire_rate + Ice_rate + Thunder_rate +
+            Attack_rate + Defense_rate + eAttark_rate + eDefense_rate + Heal_rate;
 
-        switch (AIType)
+        int value = UnityEngine.Random.Range(0, ActionTotalCount);
+
+        if (value <= Fire_rate)
         {
-            case OperationType.Attack:
-                value = UnityEngine.Random.Range(0, 3);//UnityEngine.Random.Range(0, 8);//
-                break;
+            //0
+            indexSelectAction = 0;
 
-            case OperationType.balance:
-                value = UnityEngine.Random.Range(0, 8);//
-                break;
-
-            case OperationType.support:
-                value = UnityEngine.Random.Range(3, 8);//
-                break;
-
-            default:
-                break;
         }
-        //int value = UnityEngine.Random.Range(0, 8);//
-        indexSelectAction = value;
+        else if (Fire_rate < value && value <= Fire_rate + Ice_rate)
+        {
+            //1
+            indexSelectAction = 1;
+        }
+        else if (Fire_rate + Ice_rate < value && value <= Fire_rate + Ice_rate + Thunder_rate)
+        {
+            //2
+            indexSelectAction = 2;
+        }
+        else if (Fire_rate + Ice_rate + Thunder_rate < value 
+            && value <= Fire_rate + Ice_rate + Thunder_rate + Attack_rate)
+        {
+            //3
+            indexSelectAction = 3;
+        }
+        else if (Fire_rate + Ice_rate + Thunder_rate + Attack_rate < value &&
+            value <= Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate)
+        {
+            //4
+            indexSelectAction = 4;
+        }
+        else if (Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate < value 
+            && value <= Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate + eAttark_rate)
+        {
+            //5
+            indexSelectAction = 5;
+        }
+        else if (Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate + eAttark_rate < value 
+            && value <= Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate + eAttark_rate + eDefense_rate)
+        {
+            //6
+            indexSelectAction = 6;
+        }
+        else if (Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate + eAttark_rate + eDefense_rate < value)
+        {
+            var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
+
+            if (PlayerDatas.MaxHP < PlayerDatas.HP + 50)
+            {
+                
+
+
+            }
+            else
+            //7
+            indexSelectAction = 7;
+        }
+
+
+
+        //switch (AIType)
+        //{
+        //    case OperationType.Attack:
+        //        value = UnityEngine.Random.Range(0, 3);//UnityEngine.Random.Range(0, 8);//
+        //        break;
+
+        //    case OperationType.balance:
+        //        value = UnityEngine.Random.Range(0, 8);//
+        //        break;
+
+        //    case OperationType.support:
+        //        value = UnityEngine.Random.Range(3, 8);//
+        //        break;
+
+        //    default:
+        //        break;
+        //}
         // 敵の行動パターンを抽選
         indexSelectEnemyAction = UnityEngine.Random.Range(0, 100);
         //if(indexSelectEnemyAction > 89 && )
@@ -1093,7 +1223,7 @@ public class BattleController : MonoBehaviour
                     }
                     else if (50 <= indexSelectEnemyAction && indexSelectEnemyAction < 70)
                     {
-                        enemyAttackCorrection *= 1.2f;
+                        enemyAttackCorrection *= 1.3f;
                         Log("敵の攻撃アップ！");
                         EnemyActions.Add("攻撃アップ");
                         
@@ -1103,7 +1233,7 @@ public class BattleController : MonoBehaviour
                     }
                     else if (70 <= indexSelectEnemyAction && indexSelectEnemyAction < 90)
                     {
-                        enemyDefenseCorrection *= 1.2f;
+                        enemyDefenseCorrection *= 1.3f;
                         Log("敵の防御アップ");
                         EnemyActions.Add("防御アップ");
                         
