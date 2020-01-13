@@ -29,6 +29,8 @@ using DG.Tweening;
 /// </summary>
 public class BattleController : MonoBehaviour
 {
+    [Header("実験者のID")]
+    public string PlayerID = "01";
     /// <summary>
     /// Gets or sets the state of the character.
     /// </summary>
@@ -168,14 +170,14 @@ public class BattleController : MonoBehaviour
 
     [Header("バランスタイプのデフォルト値")]
     public int[] BalanceType
-        = { 10, 10, 10, 10, 10, 10, 10, 10};
+        = { 15, 15, 15, 11, 11, 11, 11, 11};
 
     [Header("サポートタイプのデフォルト値")]
     public int[] SupportType
         = { 5, 5, 5, 15, 15, 15, 15, 25 };
 
 
-    [Header("各属性の繰り出す割合")]
+    [Header("各特技の繰り出す割合")]
     public int Fire_rate = 10;
     public int Ice_rate = 10;
     public int Thunder_rate = 10;
@@ -185,6 +187,15 @@ public class BattleController : MonoBehaviour
     public int eDefense_rate = 10;
     public int Heal_rate = 10;
 
+    private int Fire_rate2 = 10;
+    private int Ice_rate2 = 10;
+    private int Thunder_rate2 = 10;
+    private int Attack_rate2 = 10;
+    private int Defense_rate2 = 10;
+    private int eAttark_rate2 = 10;
+    private int eDefense_rate2 = 10;
+    private int Heal_rate2 = 10;
+
     [Header("プレイヤーの攻撃力と防御力の補正値")]
     public float playerAttackCorrection = 1;
     public float playerDefenseCorrection = 1;
@@ -192,9 +203,17 @@ public class BattleController : MonoBehaviour
     public float enemyDefenseCorrection = 1;
 
     private List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
+    private List<int> FFBC_List = new List<int>();//各ターンのフィードバック回数を記録
+    private List<int> EFBC_List = new List<int>();//各ターンのフィードバック回数を記録
     private List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
     private List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
+    private int value; //これの値で魔導士の行動が決まる
+    [SerializeField]
+    int[] FtoA_List = new int[8];
     private int nowFeedbackCount = 0; //フィードバックの回数を計測
+    private int TotalFBCount = 0;
+    private int FFBC = 0; //味方の攻撃中のFB
+    private int EFBC = 0; //敵の…
     private int battleTurn = 1;
     private int indexSelectAction = 0;
     private int indexSelectEnemyAction = 0;
@@ -204,7 +223,17 @@ public class BattleController : MonoBehaviour
     public GameObject gp;
     public GameObject BossEnemy;
 
-    //[Header("各魔法の行動を行う比率")]
+    private bool DuringFAttack = true; //味方の攻撃中と敵の攻撃中を識別
+    private int NowBattleCount = 1;
+
+    private List<int> HPList = new List<int>();
+    private List<float> AttackList = new List<float>();
+    private List<float> DefenseList = new List<float>();
+    private List<int> eHPList = new List<int>();
+    private List<float> eAttackList = new List<float>();
+    private List<float> eDefenseList = new List<float>();
+
+
 
     void Awake()
     {
@@ -279,6 +308,7 @@ public class BattleController : MonoBehaviour
         else if (currentState == EnumBattleState.EnemyTurn)
         {
             Log(GameTexts.EnemyTurn);
+            DuringFAttack = false;
             var z = turnByTurnSequenceList.Where(w => w.First == EnumPlayerOrEnemy.Player);
             // ElementAt 指定したインデックスのデータを返す
             var playerTargetedByEnemy = z.ElementAt(UnityEngine.Random.Range(0, z.Count() - 1));
@@ -308,11 +338,12 @@ public class BattleController : MonoBehaviour
             else if (count == 1)
             {
                 Debug.Log("仲間のターン");
+                DuringFAttack = true;
                 DrawAction();//仲間の行動パターンを抽選
                 //BattlePanels.SelectedSpell = BattlePanels.SelectedCharacter.SpellsList[indexSelectAction];
                 //MagicAction();
                 AcceptDecision();
-                count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                //count = 0;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 currentState = EnumBattleState.None;
             }
         }
@@ -335,18 +366,33 @@ public class BattleController : MonoBehaviour
             //    var calculatedXP = Math.Floor(Math.Sqrt(625 + 100 * characterdatas.XP) - 25) / 50;
             //    characterdatas.Level = (int)calculatedXP;
             //}
-            var textTodisplay = GameTexts.EndOfTheBattle + "\n\n" + "次の戦闘を行う";
+            var textTodisplay =NowBattleCount.ToString() + "回目の戦闘が終了！" + "\n\n" + "次の戦闘を行う";
             ShowDropMenu(textTodisplay);
             currentState = EnumBattleState.EndBattle;
             //var go = GameObject.FindGameObjectsWithTag(Settings.Music).FirstOrDefault();
             //if (go) go.GetComponent<AudioSource>().Stop();
             //SoundManager.WinningMusic();
 
-            if (battleTurn > FelloActions.Count) FelloActions.Add("主人公のアクションで終了");
+            FelloActions.Add("主人公のアクションで終了");
+            receptionFB = false;
             EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
             feedbackCountList.Add(nowFeedbackCount);
+            TotalFBCount += nowFeedbackCount;
             nowFeedbackCount = 0;
-            GetComponent<ExportCSV>().OutputCSV(battleTurn, FelloActions, feedbackCountList, EnemyActions,AItypeText);
+            FFBC_List.Add(FFBC);
+            EFBC_List.Add(EFBC);
+            var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
+            HPList.Add(PlayerDatas.HP);
+            AttackList.Add(playerAttackCorrection);
+            DefenseList.Add(playerDefenseCorrection);
+            eHPList.Add(0);
+            eAttackList.Add(enemyAttackCorrection);
+            eDefenseList.Add(enemyDefenseCorrection);
+
+            GetComponent<ExportCSV>().
+                OutputCSV(AItypeText, NowBattleCount, battleTurn, FelloActions,
+                HPList,AttackList,DefenseList,EnemyActions,eHPList,eAttackList,eDefenseList,
+                FFBC_List,EFBC_List, PlayerID);
             Invoke("Pause", 1.0f);
             
         }
@@ -369,11 +415,41 @@ public class BattleController : MonoBehaviour
 
     public void GameRestart()//2戦目、3戦目のための処理!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     {
-        //画面を一度ポーズする
+        NowBattleCount++;
+
+        if(NowBattleCount == 2)
+        {
+            //フィードバックの値をAIに反映
+
+            Fire_rate += Mathf.CeilToInt(30 * FtoA_List[0] / TotalFBCount);
+            Ice_rate += Mathf.CeilToInt(30 * FtoA_List[1] / TotalFBCount);
+            Thunder_rate += Mathf.CeilToInt(30 * FtoA_List[2] / TotalFBCount);
+            Attack_rate += Mathf.CeilToInt(30 * FtoA_List[3] / TotalFBCount);
+            Defense_rate += Mathf.CeilToInt(30 * FtoA_List[4] / TotalFBCount);
+            eAttark_rate += Mathf.CeilToInt(30 * FtoA_List[5] / TotalFBCount);
+            eDefense_rate += Mathf.CeilToInt(30 * FtoA_List[6] / TotalFBCount);
+            Heal_rate += Mathf.CeilToInt(30 * FtoA_List[7] / TotalFBCount);
+        }
+        else if(NowBattleCount == 3)
+        {
+            //フィードバックの値を2回目の時よりさらにAIに反映
+            Fire_rate = Fire_rate2 + Mathf.CeilToInt(300 * FtoA_List[0] / TotalFBCount);
+            Ice_rate = Ice_rate2 + Mathf.CeilToInt(300 * FtoA_List[1] / TotalFBCount);
+            Thunder_rate = Thunder_rate2 + Mathf.CeilToInt(300 * FtoA_List[2] / TotalFBCount);
+            Attack_rate = Attack_rate2 + Mathf.CeilToInt(300 * FtoA_List[3] / TotalFBCount);
+            Defense_rate = Defense_rate2 + Mathf.CeilToInt(300 * FtoA_List[4] / TotalFBCount);
+            eAttark_rate = eAttark_rate2 + Mathf.CeilToInt(300 * FtoA_List[5] / TotalFBCount);
+            eDefense_rate = eDefense_rate2 + Mathf.CeilToInt(300 * FtoA_List[6] / TotalFBCount);
+            Heal_rate = Heal_rate2 + Mathf.CeilToInt(300 * FtoA_List[7] / TotalFBCount);
+        }
+
+
+        //画面のポーズ状態を解除する
         Main.PauseGame(false);
         //敵を再びアクティブにし、全快状態にする
         enemyReGenerate();
         //ターンの順番等を初期化
+        turnByTurnSequenceList.Clear();
         GenerateTurnByTurnSequence();//ターンごとのシーケンスを生成
         sequenceEnumerator = turnByTurnSequenceList.GetEnumerator();// GetEnumerator コレクション内全ての要素を一回ずつ呼び出す
         NextBattleSequence();
@@ -393,13 +469,26 @@ public class BattleController : MonoBehaviour
         count = 0;
         battleTurn = 1;
         receptionFB = false;
+        nowFeedbackCount = 0;
+        FFBC = 0;
+        EFBC = 0;
         //バフの効果時間を
+
+
         playerAttackCorrection = 1;
         playerDefenseCorrection = 1;
         enemyAttackCorrection = 1;
         enemyDefenseCorrection = 1;
 
         feedbackCountList.Clear();
+        FFBC_List.Clear();
+        EFBC_List.Clear();
+        HPList.Clear();
+        AttackList.Clear();
+        DefenseList.Clear();
+        eHPList.Clear();
+        eAttackList.Clear();
+        eDefenseList.Clear();
         FelloActions.Clear();
         EnemyActions.Clear();
 
@@ -407,25 +496,57 @@ public class BattleController : MonoBehaviour
 
     public void PushGoodKey() //Gキーを押すことによってフィードバック
     {
-        if (receptionFB)
+        if(NowBattleCount == 1) //　戦闘一回目の時だけ
         {
-            nowFeedbackCount++;
-            if (gp == null)
+            if (receptionFB)
             {
-                GameObject goodprefab = (GameObject)Instantiate(goodPanel);
-                goodprefab.transform.SetParent(fadeout.transform, false);
-                SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
-                gp = goodprefab;
+                if (DuringFAttack)
+                {
+                    nowFeedbackCount++;
+                    FFBC++;
+                    FtoA_List[indexSelectAction]++;
+                    if (gp == null)
+                    {
+                        GameObject goodprefab = (GameObject)Instantiate(goodPanel);
+                        goodprefab.transform.SetParent(fadeout.transform, false);
+                        SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
+                        gp = goodprefab;
+                    }
+                    else
+                    {
+                        Destroy(gp);
+                        GameObject goodprefab = (GameObject)Instantiate(goodPanel);
+                        goodprefab.transform.SetParent(fadeout.transform, false);
+                        SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
+                        gp = goodprefab;
+                    }
+                    Debug.Log("味方の攻撃中にGood!");
+                }
+                else
+                {
+                    nowFeedbackCount++;
+                    EFBC++;
+                    FtoA_List[indexSelectAction]++;
+                    if (gp == null)
+                    {
+                        GameObject goodprefab = (GameObject)Instantiate(goodPanel);
+                        goodprefab.transform.SetParent(fadeout.transform, false);
+                        SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
+                        gp = goodprefab;
+                    }
+                    else
+                    {
+                        Destroy(gp);
+                        GameObject goodprefab = (GameObject)Instantiate(goodPanel);
+                        goodprefab.transform.SetParent(fadeout.transform, false);
+                        SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
+                        gp = goodprefab;
+                    }
+                    Debug.Log("敵の攻撃中にGood!");
+                }
+
             }
-            else
-            {
-                Destroy(gp);
-                GameObject goodprefab = (GameObject)Instantiate(goodPanel);
-                goodprefab.transform.SetParent(fadeout.transform, false);
-                SoundManager.StaticPlayOneShot("Good", new Vector3(0, 0, 0));
-                gp = goodprefab;
-            }
-            Debug.Log("Good!");
+
         }
     }
 
@@ -433,8 +554,13 @@ public class BattleController : MonoBehaviour
     public void AggregateFB()
     {
         feedbackCountList.Add(nowFeedbackCount);
+        FFBC_List.Add(FFBC);
+        EFBC_List.Add(EFBC);
+        TotalFBCount += nowFeedbackCount;
         Debug.Log(battleTurn + "ターン目のフィードバックは" + feedbackCountList[battleTurn - 1] + "回");
         nowFeedbackCount = 0;
+        FFBC = 0;
+        EFBC = 0;
         battleTurn++;
     }
 
@@ -448,7 +574,7 @@ public class BattleController : MonoBehaviour
         switch (index)
         {
             case 1:
-                Debug.Log("攻撃重視");
+                //Debug.Log("攻撃重視");
                 AIType = OperationType.Attack;
                 AItypeText = "攻撃重視";
 
@@ -464,7 +590,7 @@ public class BattleController : MonoBehaviour
                 break;
 
             case 2:
-                Debug.Log("バランス重視");
+                //Debug.Log("バランス重視");
                 AIType = OperationType.balance;
                 AItypeText = "バランス重視";
 
@@ -480,7 +606,7 @@ public class BattleController : MonoBehaviour
                 break;
 
             case 3:
-                Debug.Log("サポート重視");
+                //Debug.Log("サポート重視");
                 AIType = OperationType.support;
                 AItypeText = "サポート重視";
 
@@ -498,16 +624,35 @@ public class BattleController : MonoBehaviour
             default:
                 break;
         }
+        Fire_rate2 = Fire_rate;
+        Ice_rate2 = Ice_rate;
+        Thunder_rate2 = Thunder_rate;
+        Attack_rate2 = Attack_rate;
+        Defense_rate2 = Defense_rate;
+        eAttark_rate2 = eAttark_rate;
+        eDefense_rate2 = eDefense_rate;
+        Heal_rate2 = Heal_rate;
+        
     }
 
     //プレイヤーの行動パターンを抽選（ついでに敵の行動パターンも抽選）
     public void DrawAction()
     {
-        
-        ActionTotalCount = Fire_rate + Ice_rate + Thunder_rate +
-            Attack_rate + Defense_rate + eAttark_rate + eDefense_rate + Heal_rate;
+        var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
 
-        int value = UnityEngine.Random.Range(0, ActionTotalCount);
+        if (PlayerDatas.MaxHP == PlayerDatas.HP)
+        {
+            ActionTotalCount = Fire_rate + Ice_rate + Thunder_rate +
+            Attack_rate + Defense_rate + eAttark_rate + eDefense_rate;
+            Debug.Log("満タンのため回復は必要なし");
+        }
+        else
+        {
+            ActionTotalCount = Fire_rate + Ice_rate + Thunder_rate +
+           Attack_rate + Defense_rate + eAttark_rate + eDefense_rate + Heal_rate;
+        }
+
+        value = UnityEngine.Random.Range(0, ActionTotalCount);
 
         if (value <= Fire_rate)
         {
@@ -551,18 +696,10 @@ public class BattleController : MonoBehaviour
         }
         else if (Fire_rate + Ice_rate + Thunder_rate + Attack_rate + Defense_rate + eAttark_rate + eDefense_rate < value)
         {
-            var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
-
-            if (PlayerDatas.MaxHP < PlayerDatas.HP + 50)
-            {
-                
-
-
-            }
-            else
             //7
             indexSelectAction = 7;
         }
+        Debug.Log("今回のvalueは"+ value);
 
 
 
@@ -755,8 +892,16 @@ public class BattleController : MonoBehaviour
 
     IEnumerator NextSequenceWait()
     {
-        yield return new WaitForSeconds(3.0f);
-        NextBattleSequence();
+        if(NowBattleCount == 1)
+        {
+            yield return new WaitForSeconds(3.0f);
+            NextBattleSequence();
+        }
+        else
+        {
+            yield return new WaitForSeconds(1.0f);
+            NextBattleSequence();
+        }
     }
 
     /// <summary>
@@ -837,7 +982,7 @@ public class BattleController : MonoBehaviour
 
         HideMenu();
         AcceptDecision();
-        count++;
+        //count++;
       
     }
 
@@ -1039,14 +1184,14 @@ public class BattleController : MonoBehaviour
                     calculatedDamage = Mathf.CeilToInt((BattlePanels.SelectedWeapon.Attack + selectedPlayerDatas.GetAttack()) * playerAttackCorrection - (enemyCharacterdatas.Defense * enemyDefenseCorrection)); //小数点切り捨て
                     calculatedDamage = Mathf.Clamp(calculatedDamage, 0, calculatedDamage); //与えられた最小 float 値と最大 float 値の範囲に値を制限します　public static float Clamp (float value, float min, float max);
                     enemyCharacterdatas.HP = Mathf.Clamp(enemyCharacterdatas.HP - calculatedDamage, 0, enemyCharacterdatas.HP - calculatedDamage);
-                    Log("主人公の攻撃!!");
+                    Log("主人公の攻撃!!"+ "\n" + "敵に" + calculatedDamage.ToString() + "ダメージ!");
                     ShowPopup("-" + calculatedDamage.ToString(), selectedEnemy.transform.position);
                     selectedEnemy.BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
                     Destroy(Instantiate(WeaponParticleEffect, selectedEnemy.transform.localPosition, Quaternion.identity), 1.5f);
-                    SoundManager.WeaponSound();
+                    SoundManager.UISound();
                     selectedPlayer.SendMessage("Animate", EnumBattleState.Attack.ToString());
                     selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
-
+                    count = 1;
                     break;
                 // まほうを使うとき
                 case EnumBattleAction.Magic:
@@ -1058,7 +1203,7 @@ public class BattleController : MonoBehaviour
                         calculatedDamage = Mathf.Clamp(calculatedDamage, 0, calculatedDamage);
                         enemyCharacterdatas.HP = Mathf.Clamp(enemyCharacterdatas.HP - calculatedDamage, 0, enemyCharacterdatas.HP - calculatedDamage);
                         selectedPlayerDatas.MP = Mathf.Clamp(selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount, 0, selectedPlayerDatas.MP - BattlePanels.SelectedSpell.ManaAmount);
-                        Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "敵に" + calculatedDamage.ToString() + "ダメージ!");
                         FelloActions.Add(BattlePanels.SelectedSpell.Name); //仲間の行った特技を記録しておく
 
                         //ダメージを表示する処理
@@ -1080,39 +1225,54 @@ public class BattleController : MonoBehaviour
                     }
                     else if (3 <= indexSelectAction)//使用魔法がバフ、デバフ,回復
                     {
+                        var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
                         switch (indexSelectAction)
                         {
                             // 攻撃アップ
                             case 3:
                                 playerAttackCorrection *= 1.3f;
+                                Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "主人公の攻撃力が上がった！");
+                                ShowPopup("UP!", turnByTurnSequenceList[0].Second.transform.position);
                                 break;
                             // 防御アップ
                             case 4:
                                 playerDefenseCorrection *= 1.3f;
+                                Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "主人公の防御力が上がった！");
+                                ShowPopup("UP!", turnByTurnSequenceList[0].Second.transform.position);
                                 break;
                             // 攻撃デバフ
                             case 5:
                                 enemyAttackCorrection /= 1.3f;
                                 selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
+                                ShowPopup("Down!", generatedEnemyList[0].transform.position);
+                                Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "敵の攻撃力を下げた！");
                                 break;
                             // 防御デバフ
                             case 6:
                                 enemyDefenseCorrection /= 1.3f;
                                 selectedEnemy.SendMessage("Animate", EnumBattleState.Hit.ToString());
+                                ShowPopup("Down!", generatedEnemyList[0].transform.position);
+                                Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "敵の防御力を下げた！");
                                 break;
                             // 回復
                             case 7:
                                 //instantiatedCharacterList[0].
                                 //BattlePanels.SelectedCharacter.HP -= 100;
-                                var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
+                                //var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
 
-                                if(PlayerDatas.MaxHP < PlayerDatas.HP + 50)
+                               
+                                if (PlayerDatas.MaxHP < PlayerDatas.HP + 50)
                                 {
+                                    int nhp = PlayerDatas.MaxHP - PlayerDatas.HP;
                                     PlayerDatas.HP = PlayerDatas.MaxHP;
+                                    Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "主人公のHPが"+ nhp.ToString() + "回復した！");
+                                    ShowPopup("+"+nhp.ToString(), turnByTurnSequenceList[0].Second.transform.position);
                                 }
                                 else
                                 {
                                     PlayerDatas.HP += 50;
+                                    Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "主人公のHPが50回復した！");
+                                    ShowPopup("+50", turnByTurnSequenceList[0].Second.transform.position);
                                 }
                                 
                                 //turnByTurnSequenceList[0].Second.BroadcastMessage("SetHPValue", PlayerDatas.MaxHP <= 0 ? 0 : PlayerDatas.HP * 100 / PlayerDatas.MaxHP);
@@ -1122,7 +1282,7 @@ public class BattleController : MonoBehaviour
                                 break;
                         }
 
-                        Log("魔導士の" + BattlePanels.SelectedSpell.Name);
+                        //Log("魔導士の" + BattlePanels.SelectedSpell.Name +"\n" +"");
                         FelloActions.Add(BattlePanels.SelectedSpell.Name); //仲間の行った特技を記録しておく
 
                         //エフェクト関連の処理
@@ -1134,7 +1294,7 @@ public class BattleController : MonoBehaviour
                         //アニメーション関連の処理
                         selectedPlayer.SendMessage("Animate", EnumBattleState.Magic.ToString());
                     }
-
+                    count = 0;
                     break;
                 // アイテムを使うとき
                 case EnumBattleAction.Item:
@@ -1158,12 +1318,8 @@ public class BattleController : MonoBehaviour
             KillCharacter(selectedEnemy);
         //selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
         selectedEnemy = null;
-        //NextBattleSequence();
-        //Invoke("NextBattleSequence", 2.0f);
+        currentState = EnumBattleState.None;
         StartCoroutine("NextSequenceWait");
-        
-
-        //NextBattleSequence();
     }
 
     /// <summary>
@@ -1212,7 +1368,7 @@ public class BattleController : MonoBehaviour
                         calculatedDamage = Mathf.Clamp(calculatedDamage, 0, calculatedDamage);
                         playerToAttackDatas.HP = Mathf.Clamp(playerToAttackDatas.HP - calculatedDamage, 0, playerToAttackDatas.HP - calculatedDamage);
                         //与えたダメージ量をホップアップ
-                        Log("味方に" + calculatedDamage.ToString() + "ダメージ");
+                        Log("敵のこうげき!!" +"\n" + "主人公に" + calculatedDamage.ToString() + "ダメージ");
                         EnemyActions.Add("通常攻撃");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
                         ShowPopup("-" + calculatedDamage.ToString(), playerToAttack.transform.position);
                         playerToAttack.BroadcastMessage("SetHPValue", playerToAttackDatas.MaxHP <= 0 ? 0 : playerToAttackDatas.HP * 100 / playerToAttackDatas.MaxHP);
@@ -1224,45 +1380,48 @@ public class BattleController : MonoBehaviour
                     else if (50 <= indexSelectEnemyAction && indexSelectEnemyAction < 70)
                     {
                         enemyAttackCorrection *= 1.3f;
-                        Log("敵の攻撃アップ！");
+                        Log("敵の攻撃アップ！" + "\n" + "敵の攻撃力が上がった！");
                         EnemyActions.Add("攻撃アップ");
                         
                         ShowPopup("UP!!"  , generatedEnemyList[0].transform.position);
+                        SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
                         go.SendMessage("Animate", EnumBattleState.Idle.ToString());
 
                     }
                     else if (70 <= indexSelectEnemyAction && indexSelectEnemyAction < 90)
                     {
                         enemyDefenseCorrection *= 1.3f;
-                        Log("敵の防御アップ");
+                        Log("敵の防御アップ" + "\n" + "敵の防御力が上がった！");
                         EnemyActions.Add("防御アップ");
                         
                         ShowPopup("UP!!" , generatedEnemyList[0].transform.position);
+                        SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
                         go.SendMessage("Animate", EnumBattleState.Idle.ToString());
 
                     }
                     else if (90 < indexSelectEnemyAction)
                     {
                         selectedEnemy = GameObject.FindGameObjectWithTag("Enemy");
-                        //var EnemyDatas = GetCharacterDatas(turnByTurnSequenceList[2].Second.name);
                         var EnemyDatas = selectedEnemy.GetComponent<EnemyCharacterDatas>();
+                        //var EnemyDatas = GetCharacterDatas(turnByTurnSequenceList[2].Second.name);
 
-                        if (EnemyDatas.MaxHP < EnemyDatas.HP + 50)
+                        if (EnemyDatas.MaxHP < EnemyDatas.HP + 100)
                         {
                             EnemyDatas.HP = EnemyDatas.MaxHP;
                         }
                         else
                         {
-                            EnemyDatas.HP += 50;
+                            EnemyDatas.HP += 100;
                         }
 
                         EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
                         EnemyDatas.BroadcastMessage("SetHPValue", EnemyDatas.MaxHP <= 0 ? 0 : EnemyDatas.HP * 100 / EnemyDatas.MaxHP);
                         //generatedEnemyList[0].BroadcastMessage("SetHPValue", enemyCharacterdatas.MaxHP <= 0 ? 0 : enemyCharacterdatas.HP * 100 / enemyCharacterdatas.MaxHP);
-                        Log("敵の回復");
+                        Log("敵の回復" + "\n" + "敵のHPが回復してしまった…");
                         EnemyActions.Add("回復");
 
-                        ShowPopup("+50", generatedEnemyList[0].transform.position);
+                        ShowPopup("+100", generatedEnemyList[0].transform.position);
+                        SoundManager.StaticPlayOneShot(BattlePanels.SelectedSpell.SoundEffect, Vector3.zero);
                         go.SendMessage("Animate", EnumBattleState.Idle.ToString());
 
                     }
@@ -1274,14 +1433,26 @@ public class BattleController : MonoBehaviour
         if (playerToAttackDatas.HP <= 0)
             KillCharacter(playerToAttack);
         //selectedPlayer.SendMessage ("ChangeEnumCharacterState", battlection);
+        //Listに現在のHPや攻撃力等の情報を格納する
+        HPList.Add(playerToAttackDatas.HP);
+        AttackList.Add(playerAttackCorrection);
+        DefenseList.Add(playerDefenseCorrection);
+        eHPList.Add(GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyCharacterDatas>().HP);
+        eAttackList.Add(enemyAttackCorrection);
+        eDefenseList.Add(enemyDefenseCorrection);
+
         selectedEnemy = null;
         selectedPlayerDatas = null;
-        //NextBattleSequence();
-        //Invoke("NextBattleSequence", 1.5f);
         currentState = EnumBattleState.None;
         StartCoroutine("NextSequenceWait");
-        Invoke("AggregateFB", 3.0f);
-
+        if(NowBattleCount == 1)
+        {
+            Invoke("AggregateFB", 3.0f);
+        }
+        else
+        {
+            Invoke("AggregateFB", 1.0f);
+        }
     }
 
     /// <summary>

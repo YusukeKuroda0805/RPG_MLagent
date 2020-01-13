@@ -296,6 +296,10 @@ PrefabInstance:
       propertyPath: m_audioClip
       value: 
       objectReference: {fileID: 8300000, guid: 281b48a4b1bdfec4a8617d9f34b94a0c, type: 3}
+    - target: {fileID: 8213530, guid: 5b6a1dc333513d642b7fee843c593dbd, type: 3}
+      propertyPath: m_Volume
+      value: 0.803
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b6a1dc333513d642b7fee843c593dbd, type: 3}
 --- !u!1 &129003496
@@ -704,6 +708,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62a077b61e62ffe43a02e2b432c4f678, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerID: XX
   PossibleEnnemies:
   - {fileID: 1128124928530548, guid: 5cf29b2085b035c49886163e72db1f04, type: 3}
   NumberOfEnemyToGenerate: 1
@@ -719,24 +724,27 @@ MonoBehaviour:
     type: 3}
   MagicParticleEffect: {fileID: 105272, guid: d88638cce5be089459aa4ae8b96b74e8, type: 3}
   AIType: 0
-  AItypeText: 
-  feedbackCountList: 
-  FelloActions: []
-  EnemyActions: []
-  nowFeedbackCount: 0
-  battleTurn: 1
-  indexSelectAction: 0
-  indexSelectEnemyAction: 0
-  receptionFB: 0
+  AttackType: 1400000014000000140000000800000008000000080000000800000008000000
+  BalanceType: 0c0000000c0000000c0000000c0000000c0000000c0000000c00000010000000
+  SupportType: 0a0000000a0000000a0000000e0000000e0000000e0000000e0000000e000000
+  Fire_rate: 0
+  Ice_rate: 0
+  Thunder_rate: 0
+  Attack_rate: 0
+  Defense_rate: 0
+  eAttark_rate: 0
+  eDefense_rate: 0
+  Heal_rate: 0
+  playerAttackCorrection: 1
+  playerDefenseCorrection: 1
+  enemyAttackCorrection: 1
+  enemyDefenseCorrection: 1
+  FtoA_List: 0000000000000000000000000000000000000000000000000000000000000000
   fadeout: {fileID: 718129588}
   goodPanel: {fileID: 5515142545606160060, guid: 696ef658fa0039943a2ae00347ca03f7,
     type: 3}
   gp: {fileID: 0}
   BossEnemy: {fileID: 0}
-  playerAttackCorrection: 1
-  playerDefenseCorrection: 1
-  enemyAttackCorrection: 1
-  enemyDefenseCorrection: 1
 --- !u!114 &375481702
 MonoBehaviour:
   m_ObjectHideFlags: 0

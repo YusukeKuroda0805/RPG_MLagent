@@ -191,7 +191,7 @@ public class BattlePanels : MonoBehaviour {
 
 				if (row.BattleAction == action){ 
 					row.Panel.SetActive(true);
-					row.Panel.SendMessage("Start"); 
+					//row.Panel.SendMessage("Start"); 
 				}
 				else  row.Panel.SetActive(false); // パネルが一致しないときは子供のパネルを非アクティブにする
 			}
@@ -234,7 +234,7 @@ public class BattlePanels : MonoBehaviour {
     /// <param name="text">The text.</param>
     void LogText (string text)
 	{
-		Debug.Log ("Loging"+text);
+		//Debug.Log ("Loging"+text);
 		logText.text = text;
 	}
 

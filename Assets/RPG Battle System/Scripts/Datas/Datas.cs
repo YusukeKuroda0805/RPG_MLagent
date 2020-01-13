@@ -63,8 +63,8 @@ public class Datas
 		character.Type = EnumCharacterType.Warrior;
 		character.Level = 1;
 		character.PicturesName  = "Sam";
-		character.HP = 300;
-		character.MaxHP = 300;
+		character.HP = 500;
+		character.MaxHP = 500;
 		character.MP = 50;
 		character.MaxMP = 50;
 
@@ -77,8 +77,8 @@ public class Datas
 		character.PicturesName  = "Lilia";
 		character.HP = 300;
 		character.MaxHP = 300;
-		character.MP = 100;
-		character.MaxMP = 100;
+		character.MP = 999;
+		character.MaxMP = 999;
 
 		CharactersData[2]= character;
 
@@ -112,7 +112,7 @@ public class Datas
 		item.PicturesName = "W_Sword001";
 		item.EquipementType = EnumEquipmentType.RightHand;
 		item.AllowedCharacterType = EnumCharacterType.Warrior;
-		item.Attack = 15;
+		item.Attack = 35;
 		item.Price = 10;
 		ItemsData[1]= item;
 
@@ -507,8 +507,8 @@ public class Datas
         spell.Description = "A big thunder storm";
         spell.AllowedCharacterType = EnumCharacterType.Wizard;
         spell.PicturesName = "S_Thunder07";
-        spell.ManaAmount = 30;
-        spell.Attack = 70;
+        spell.ManaAmount = 10;
+        spell.Attack = 40;
         spell.ParticleEffect = "IceStars";
         spell.SoundEffect = "spell3";
         SpellsData[3] = spell;
