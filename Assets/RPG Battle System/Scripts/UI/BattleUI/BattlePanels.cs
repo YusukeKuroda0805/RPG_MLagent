@@ -394,4 +394,10 @@ public class BattlePanels : MonoBehaviour {
             logicGameObject.BroadcastMessage("GameRestart");
     }
 
+    //public void GameRestart2()
+    //{
+    //    if (logicGameObject)
+    //        logicGameObject.BroadcastMessage("GameRestart");
+    //}
+
 }

@@ -201,13 +201,20 @@ public class BattleController : MonoBehaviour
     public float playerDefenseCorrection = 1;
     public float enemyAttackCorrection = 1;
     public float enemyDefenseCorrection = 1;
+    [Header("リスト一覧")]
+    public List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
+    public List<int> FFBC_List = new List<int>();//各ターンのフィードバック回数を記録
+    public List<int> EFBC_List = new List<int>();//各ターンのフィードバック回数を記録
+    public List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
+    public List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
+    public List<int> HPList = new List<int>();
+    public List<float> AttackList = new List<float>();
+    public List<float> DefenseList = new List<float>();
+    public List<int> eHPList = new List<int>();
+    public List<float> eAttackList = new List<float>();
+    public List<float> eDefenseList = new List<float>();
 
-    private List<int> feedbackCountList = new List<int>();//各ターンのフィードバック回数を記録
-    private List<int> FFBC_List = new List<int>();//各ターンのフィードバック回数を記録
-    private List<int> EFBC_List = new List<int>();//各ターンのフィードバック回数を記録
-    private List<string> FelloActions = new List<string>();//各ターンの仲間の行動を記録
-    private List<string> EnemyActions = new List<string>();//各ターンの敵の行動を記録
-    private int value; //これの値で魔導士の行動が決まる
+    public int value; //これの値で魔導士の行動が決まる
     [SerializeField]
     int[] FtoA_List = new int[8];
     private int nowFeedbackCount = 0; //フィードバックの回数を計測
@@ -225,13 +232,6 @@ public class BattleController : MonoBehaviour
 
     private bool DuringFAttack = true; //味方の攻撃中と敵の攻撃中を識別
     private int NowBattleCount = 1;
-
-    private List<int> HPList = new List<int>();
-    private List<float> AttackList = new List<float>();
-    private List<float> DefenseList = new List<float>();
-    private List<int> eHPList = new List<int>();
-    private List<float> eAttackList = new List<float>();
-    private List<float> eDefenseList = new List<float>();
 
 
 
@@ -259,6 +259,7 @@ public class BattleController : MonoBehaviour
         NextBattleSequence();
         uiGameObject = GameObject.FindGameObjectsWithTag(Settings.UI).FirstOrDefault();//FitstOrDefault シーケンスの最初を返す
         HideDecision();
+        //var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
 
     }
 
@@ -373,27 +374,32 @@ public class BattleController : MonoBehaviour
             //if (go) go.GetComponent<AudioSource>().Stop();
             //SoundManager.WinningMusic();
 
-            FelloActions.Add("主人公のアクションで終了");
-            receptionFB = false;
-            EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
-            feedbackCountList.Add(nowFeedbackCount);
+            var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
             TotalFBCount += nowFeedbackCount;
             nowFeedbackCount = 0;
-            FFBC_List.Add(FFBC);
-            EFBC_List.Add(EFBC);
-            var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
-            HPList.Add(PlayerDatas.HP);
-            AttackList.Add(playerAttackCorrection);
-            DefenseList.Add(playerDefenseCorrection);
-            eHPList.Add(0);
-            eAttackList.Add(enemyAttackCorrection);
-            eDefenseList.Add(enemyDefenseCorrection);
 
+            for(int i = 0; i < 2; i++)
+            {
+                FelloActions.Add("主人公のアクションで終了");
+                receptionFB = false;
+                EnemyActions.Add("死亡");//敵の行動を記録しておく（後で変更!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!）
+                feedbackCountList.Add(nowFeedbackCount);
+                FFBC_List.Add(FFBC);
+                EFBC_List.Add(EFBC);
+                HPList.Add(PlayerDatas.HP);
+                AttackList.Add(playerAttackCorrection);
+                DefenseList.Add(playerDefenseCorrection);
+                eHPList.Add(0);
+                eAttackList.Add(enemyAttackCorrection);
+                eDefenseList.Add(enemyDefenseCorrection);
+
+            }
             GetComponent<ExportCSV>().
                 OutputCSV(AItypeText, NowBattleCount, battleTurn, FelloActions,
                 HPList,AttackList,DefenseList,EnemyActions,eHPList,eAttackList,eDefenseList,
                 FFBC_List,EFBC_List, PlayerID);
-            Invoke("Pause", 1.0f);
+            //Pause();
+            //Invoke("Pause", 0.3f);
             
         }
         else if (currentState == EnumBattleState.EnemyWon)
@@ -445,7 +451,7 @@ public class BattleController : MonoBehaviour
 
 
         //画面のポーズ状態を解除する
-        Main.PauseGame(false);
+        //Main.PauseGame(false);
         //敵を再びアクティブにし、全快状態にする
         enemyReGenerate();
         //ターンの順番等を初期化
@@ -492,7 +498,7 @@ public class BattleController : MonoBehaviour
         FelloActions.Clear();
         EnemyActions.Clear();
 
-}
+    }
 
     public void PushGoodKey() //Gキーを押すことによってフィードバック
     {
@@ -1261,7 +1267,7 @@ public class BattleController : MonoBehaviour
                                 //var PlayerDatas = GetCharacterDatas(turnByTurnSequenceList[0].Second.name);
 
                                
-                                if (PlayerDatas.MaxHP < PlayerDatas.HP + 50)
+                                if (PlayerDatas.MaxHP < PlayerDatas.HP + 100)
                                 {
                                     int nhp = PlayerDatas.MaxHP - PlayerDatas.HP;
                                     PlayerDatas.HP = PlayerDatas.MaxHP;
@@ -1270,9 +1276,9 @@ public class BattleController : MonoBehaviour
                                 }
                                 else
                                 {
-                                    PlayerDatas.HP += 50;
+                                    PlayerDatas.HP += 100;
                                     Log("魔導士の" + BattlePanels.SelectedSpell.Name + "\n" + "主人公のHPが50回復した！");
-                                    ShowPopup("+50", turnByTurnSequenceList[0].Second.transform.position);
+                                    ShowPopup("+100", turnByTurnSequenceList[0].Second.transform.position);
                                 }
                                 
                                 //turnByTurnSequenceList[0].Second.BroadcastMessage("SetHPValue", PlayerDatas.MaxHP <= 0 ? 0 : PlayerDatas.HP * 100 / PlayerDatas.MaxHP);
@@ -1399,7 +1405,7 @@ public class BattleController : MonoBehaviour
                         go.SendMessage("Animate", EnumBattleState.Idle.ToString());
 
                     }
-                    else if (90 < indexSelectEnemyAction)
+                    else if (90 <= indexSelectEnemyAction)
                     {
                         selectedEnemy = GameObject.FindGameObjectWithTag("Enemy");
                         var EnemyDatas = selectedEnemy.GetComponent<EnemyCharacterDatas>();

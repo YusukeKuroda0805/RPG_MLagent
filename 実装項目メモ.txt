@@ -105,3 +105,132 @@ difence:20
 
 
 
+★1月14日　先生レビュー
+・システムのメカニズムを具体的に説明できるように
+・AIのメカニズムを詳しく言語化する
+・
+★　兼松先生
+
+・選んだデフォルトAI毎にデータを分析してみる（どれかのAIの結果が好ましくない場合）
+・フィードバックの結果によって、ちゃんとシステム通りの確率分布になっているかを示す（データの開示は一部で良い（各デフォルト値につき１つづつぐらい））
+
+
+
+・2回目のデータと3回目のデータの内部的な確率と、生データの確率の解析を行い、そこを比較する
+
+・いただいたアンケートの意見は、実験の章の最後の考察の部分で触れるといいかも。そこから展望につなげていくとなおよい
+
+
+・実験結果のグラフは切り抜いて使う
+・質問内容は論文内で列挙する
+
+
+★攻撃タイプ
+20
+20
+20
+8
+8
+8
+8
+8
+
+★バランスタイプ
+12
+12
+12
+12
+12
+12
+12
+16
+
+★サポートタイプ
+10
+10
+10
+14
+14
+14
+14
+14
+
+ if(NowBattleCount == 2)
+        {
+            //フィードバックの値をAIに反映
+
+            Fire_rate += Mathf.CeilToInt(30 * FtoA_List[0] / TotalFBCount);
+            Ice_rate += Mathf.CeilToInt(30 * FtoA_List[1] / TotalFBCount);
+            Thunder_rate += Mathf.CeilToInt(30 * FtoA_List[2] / TotalFBCount);
+            Attack_rate += Mathf.CeilToInt(30 * FtoA_List[3] / TotalFBCount);
+            Defense_rate += Mathf.CeilToInt(30 * FtoA_List[4] / TotalFBCount);
+            eAttark_rate += Mathf.CeilToInt(30 * FtoA_List[5] / TotalFBCount);
+            eDefense_rate += Mathf.CeilToInt(30 * FtoA_List[6] / TotalFBCount);
+            Heal_rate += Mathf.CeilToInt(30 * FtoA_List[7] / TotalFBCount);
+        }
+        else if(NowBattleCount == 3)
+        {
+            //フィードバックの値を2回目の時よりさらにAIに反映
+            Fire_rate = Fire_rate2 + Mathf.CeilToInt(300 * FtoA_List[0] / TotalFBCount);
+            Ice_rate = Ice_rate2 + Mathf.CeilToInt(300 * FtoA_List[1] / TotalFBCount);
+            Thunder_rate = Thunder_rate2 + Mathf.CeilToInt(300 * FtoA_List[2] / TotalFBCount);
+            Attack_rate = Attack_rate2 + Mathf.CeilToInt(300 * FtoA_List[3] / TotalFBCount);
+            Defense_rate = Defense_rate2 + Mathf.CeilToInt(300 * FtoA_List[4] / TotalFBCount);
+            eAttark_rate = eAttark_rate2 + Mathf.CeilToInt(300 * FtoA_List[5] / TotalFBCount);
+            eDefense_rate = eDefense_rate2 + Mathf.CeilToInt(300 * FtoA_List[6] / TotalFBCount);
+            Heal_rate = Heal_rate2 + Mathf.CeilToInt(300 * FtoA_List[7] / TotalFBCount);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
